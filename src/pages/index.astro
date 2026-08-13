@@ -1,17 +1,49 @@
----
-
----
-
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta
+			name="description"
+			content="执炬人 / Torchbearer127 的个人数字空间。"
+		/>
+		<title>执炬人 / Torchbearer127</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<main>
+			<h1>执炬人</h1>
+			<p>Torchbearer127</p>
+			<p>Personal site under construction.</p>
+		</main>
 	</body>
 </html>
+
+<style>
+	:global(*) {
+		box-sizing: border-box;
+	}
+
+	:global(body) {
+		margin: 0;
+		font-family: system-ui, sans-serif;
+		color: #1f1f1f;
+		background: #fafafa;
+	}
+
+	main {
+		width: min(42rem, calc(100% - 3rem));
+		margin: 20vh auto 0;
+	}
+
+	h1 {
+		margin: 0 0 0.5rem;
+		font-size: clamp(2rem, 6vw, 3.5rem);
+	}
+
+	p {
+		margin: 0.35rem 0;
+	}
+</style>

@@ -1,43 +1,37 @@
-# Astro Starter Kit: Minimal
+# 执炬人 / Torchbearer127
+
+个人网站的最小工程骨架，使用 Astro、TypeScript 和 GitHub Pages。
+
+## 本地开发
+
+需要 Node.js 22.12.0 或更高版本。
 
 ```sh
-npm create astro@latest -- --template minimal
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+开发服务器默认运行在 `http://localhost:4321`。
 
-## 🚀 Project Structure
+## 构建
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```sh
+npm run build
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+静态站点输出到 `dist/`。如需在本地预览构建结果：
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```sh
+npm run preview
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+## GitHub Pages 部署
 
-## 🧞 Commands
+项目按 GitHub Pages user site 配置：
 
-All commands are run from the root of the project, from a terminal:
+- 仓库名应为 `Torchbearer127.github.io`；
+- 发布地址为 `https://torchbearer127.github.io`；
+- 默认分支为 `main`；
+- GitHub Pages 的 Source 需在仓库 `Settings > Pages` 中设为 `GitHub Actions`。
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+推送到 `main` 后，[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) 会使用 Astro 官方 GitHub Action 构建并部署 `dist/`。
