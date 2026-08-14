@@ -1,0 +1,165 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const pathname = Astro.url.pathname;
+const navigation = [
+	{ href: '/writing', label: 'Writing' },
+	{ href: '/notes', label: 'Notes' },
+	{ href: '/projects', label: 'Projects' },
+	{ href: '/about', label: 'About' },
+];
+---
+
+<header class="site-header">
+	<div class="site-header__inner">
+		<a class="site-identity" href="/" aria-current={pathname === '/' ? 'page' : undefined}>
+			<span class="ember" aria-hidden="true"></span>
+			<span>执炬人</span>
+		</a>
+
+		<nav class="site-nav" aria-label="主导航">
+			<ul>
+				{navigation.map(({ href, label }) => (
+					<li>
+						<a href={href} aria-current={pathname === href ? 'page' : undefined}>
+							{label}
+						</a>
+					</li>
+				))}
+			</ul>
+		</nav>
+
+		<div class="theme-control">
+			<ThemeToggle />
+		</div>
+	</div>
+</header>
+
+<style>
+	.site-header {
+		border-bottom: 1px solid var(--border);
+	}
+
+	.site-header__inner {
+		width: min(100%, var(--page-width));
+		margin-inline: auto;
+		padding: max(var(--space-3), env(safe-area-inset-top))
+			max(var(--page-gutter), env(safe-area-inset-right)) var(--space-3)
+			max(var(--page-gutter), env(safe-area-inset-left));
+		display: grid;
+		grid-template-areas:
+			"identity theme"
+			"nav nav";
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+		column-gap: var(--space-4);
+	}
+
+	.site-identity {
+		grid-area: identity;
+		min-width: 0;
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-3);
+		width: fit-content;
+		min-height: 2.75rem;
+		font-family: var(--font-display);
+		font-size: 1.125rem;
+		font-weight: 600;
+		letter-spacing: 0.025em;
+		text-decoration: none;
+	}
+
+	.ember {
+		position: relative;
+		width: 0.45rem;
+		height: 0.45rem;
+		border-radius: 50%;
+		background: var(--accent);
+	}
+
+	.ember::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		bottom: 100%;
+		width: 1px;
+		height: 0.8rem;
+		background: var(--border);
+	}
+
+	.site-identity:hover,
+	.site-identity[aria-current="page"] {
+		color: var(--accent-strong);
+	}
+
+	.site-nav {
+		grid-area: nav;
+		min-width: 0;
+	}
+
+	.site-nav ul {
+		margin: 0;
+		padding: var(--space-1) 0 0;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, auto));
+		justify-content: space-between;
+		list-style: none;
+	}
+
+	.site-nav a {
+		position: relative;
+		display: inline-grid;
+		place-items: center;
+		min-height: 2.75rem;
+		padding-inline: var(--space-1);
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		font-weight: 550;
+		text-decoration: none;
+	}
+
+	.site-nav a:hover,
+	.site-nav a[aria-current="page"] {
+		color: var(--text);
+	}
+
+	.site-nav a[aria-current="page"]::after {
+		content: '';
+		position: absolute;
+		inset-inline: var(--space-1);
+		bottom: 0.25rem;
+		height: 1px;
+		background: var(--accent);
+	}
+
+	.theme-control {
+		grid-area: theme;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	@media (min-width: 48rem) {
+		.site-header__inner {
+			min-height: 5rem;
+			padding-block: var(--space-4);
+			grid-template-areas: "identity nav theme";
+			grid-template-columns: minmax(12rem, 1fr) auto minmax(12rem, 1fr);
+			gap: var(--space-8);
+		}
+
+		.site-nav ul {
+			padding: 0;
+			display: flex;
+			gap: var(--space-6);
+		}
+
+		.site-nav a {
+			padding-inline: 0;
+		}
+
+		.site-nav a[aria-current="page"]::after {
+			inset-inline: 0;
+		}
+	}
+</style>

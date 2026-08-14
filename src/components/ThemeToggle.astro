@@ -1,0 +1,115 @@
+<button
+	class="theme-toggle"
+	type="button"
+	data-theme-toggle
+	aria-label="切换至深色主题"
+	aria-pressed="false"
+	title="切换至深色主题"
+>
+	<svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+		<path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z" />
+	</svg>
+	<svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+		<circle cx="12" cy="12" r="3.5" />
+		<path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" />
+	</svg>
+	<span class="visually-hidden">切换颜色主题</span>
+</button>
+
+<script>
+	const storageKey = 'torchbearer-theme';
+	const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+	const colorMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+	const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+	const readSavedTheme = () => {
+		try {
+			const saved = localStorage.getItem(storageKey);
+			return saved === 'light' || saved === 'dark' ? saved : null;
+		} catch {
+			return null;
+		}
+	};
+
+	const applyTheme = (theme: 'light' | 'dark') => {
+		document.documentElement.dataset.theme = theme;
+		document.documentElement.style.colorScheme = theme;
+		colorMeta?.setAttribute('content', theme === 'dark' ? '#1c1a18' : '#f7f2e8');
+
+		if (toggle) {
+			const isDark = theme === 'dark';
+			const nextTheme = isDark ? '浅色' : '深色';
+			toggle.setAttribute('aria-pressed', String(isDark));
+			toggle.setAttribute('aria-label', `切换至${nextTheme}主题`);
+			toggle.title = `切换至${nextTheme}主题`;
+		}
+	};
+
+	toggle?.addEventListener('click', () => {
+		const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+		try {
+			localStorage.setItem(storageKey, nextTheme);
+		} catch {
+			// The selected theme still applies for this page when storage is unavailable.
+		}
+		applyTheme(nextTheme);
+	});
+
+	systemTheme.addEventListener('change', (event) => {
+		if (!readSavedTheme()) {
+			applyTheme(event.matches ? 'dark' : 'light');
+		}
+	});
+
+	applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+</script>
+
+<style>
+	.theme-toggle {
+		display: none;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		padding: 0;
+		border: 1px solid var(--border);
+		border-radius: 50%;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+	}
+
+	:global(html.js) .theme-toggle {
+		display: inline-grid;
+	}
+
+	.theme-toggle:hover {
+		border-color: var(--accent);
+		color: var(--accent-strong);
+	}
+
+	.theme-toggle:active {
+		transform: scale(0.96);
+	}
+
+	.theme-icon {
+		width: 1.15rem;
+		height: 1.15rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-width: 1.6;
+	}
+
+	.theme-icon--sun {
+		display: none;
+	}
+
+	:global(:root[data-theme="dark"]) .theme-icon--moon {
+		display: none;
+	}
+
+	:global(:root[data-theme="dark"]) .theme-icon--sun {
+		display: block;
+	}
+</style>
