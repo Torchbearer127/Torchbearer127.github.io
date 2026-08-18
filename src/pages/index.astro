@@ -1,252 +1,190 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const topics = [
-	'Vulnerability Discovery',
-	'Program Analysis',
-	'AI for Software Security',
-	'Exploitability Validation',
+const sections = [
+	{
+		id: 'latest-writing',
+		title: 'Latest Writing',
+		emptyTitle: 'No essays published yet.',
+		emptyDescription: 'Long-form work will appear here when it is ready.',
+		href: '/writing',
+		linkLabel: 'Browse Writing',
+	},
+	{
+		id: 'recent-notes',
+		title: 'Recent Notes',
+		emptyTitle: 'No notes published yet.',
+		emptyDescription: 'Research notes and working observations will collect here.',
+		href: '/notes',
+		linkLabel: 'Browse Notes',
+	},
+	{
+		id: 'selected-projects',
+		title: 'Selected Projects',
+		emptyTitle: 'Project notes are being prepared.',
+		emptyDescription: 'Selected tools and experiments will be documented with their context intact.',
+		href: '/projects',
+		linkLabel: 'Browse Projects',
+	},
 ];
 ---
 
 <BaseLayout>
 	<div class="home-shell">
 		<section class="hero" aria-labelledby="identity-title">
-			<div class="hero-identity">
-				<p class="hero-kicker">Security · Research · Code · Thoughts</p>
-				<h1 id="identity-title">执炬人</h1>
-				<p class="hero-alias" translate="no">Torchbearer127</p>
-			</div>
-
-			<div class="hero-statement">
-				<span class="statement-mark" aria-hidden="true"></span>
-				<p>“I study systems, vulnerabilities, and the paths hiding behind their assumptions.”</p>
-			</div>
+			<p class="hero-kicker">Software Security · AI4Sec · Program Analysis</p>
+			<h1 id="identity-title">执炬人</h1>
+			<p class="hero-alias">
+				<span class="hero-alias__mark" aria-hidden="true"></span>
+				<span translate="no">Torchbearer127</span>
+			</p>
+			<p class="hero-statement">
+				I study systems, vulnerabilities, and the paths hiding behind their assumptions.
+			</p>
 		</section>
 
-		<section class="content-section" aria-labelledby="thinking-title">
-			<div class="section-heading">
-				<p class="section-index" aria-hidden="true">01</p>
-				<h2 id="thinking-title">Currently Thinking About</h2>
-			</div>
-			<ul class="topic-list">
-				{topics.map((topic, index) => (
-					<li>
-						<span>{topic}</span>
-						<span class="topic-number" aria-hidden="true">0{index + 1}</span>
-					</li>
-				))}
-			</ul>
-		</section>
-
-		<section class="content-section" aria-labelledby="writing-title">
-			<div class="section-heading">
-				<p class="section-index" aria-hidden="true">02</p>
-				<h2 id="writing-title">Selected Writing</h2>
-			</div>
-			<div class="quiet-state">
-				<p>No essays published yet.</p>
-				<p>The archive will open when the first piece is ready.</p>
-				<a href="/writing">Visit Writing</a>
-			</div>
-		</section>
-
-		<section class="content-section" aria-labelledby="projects-title">
-			<div class="section-heading">
-				<p class="section-index" aria-hidden="true">03</p>
-				<h2 id="projects-title">Selected Projects</h2>
-			</div>
-			<div class="quiet-state">
-				<p>Project notes are being prepared.</p>
-				<p>This space will hold selected tools and experiments with their context intact.</p>
-				<a href="/projects">Visit Projects</a>
-			</div>
-		</section>
+		<div class="home-sections">
+			{sections.map((section) => (
+				<section class="content-section" aria-labelledby={section.id}>
+					<div class="section-heading">
+						<h2 id={section.id}>{section.title}</h2>
+						<a href={section.href}>{section.linkLabel} <span aria-hidden="true">→</span></a>
+					</div>
+					<div class="empty-row">
+						<p class="empty-row__title">{section.emptyTitle}</p>
+						<p>{section.emptyDescription}</p>
+					</div>
+				</section>
+			))}
+		</div>
 	</div>
 </BaseLayout>
 
 <style>
 	.home-shell {
-		width: min(100%, var(--page-width));
+		width: min(100%, var(--layout-page-max));
 		margin-inline: auto;
-		padding-right: max(var(--page-gutter), env(safe-area-inset-right));
-		padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+		padding-right: max(var(--layout-gutter), env(safe-area-inset-right));
+		padding-left: max(var(--layout-gutter), env(safe-area-inset-left));
 	}
 
 	.hero {
-		min-height: min(48rem, calc(100svh - 8rem));
-		padding-block: clamp(5rem, 12vw, 10rem) var(--space-24);
-		display: grid;
-		align-content: center;
-		gap: var(--space-16);
-	}
-
-	.hero-identity {
-		min-width: 0;
+		max-width: 52rem;
+		padding-block: 4rem 3rem;
 	}
 
 	.hero-kicker {
 		margin: 0 0 var(--space-6);
-		color: var(--text-muted);
-		font-size: 0.6875rem;
-		font-weight: 700;
-		letter-spacing: 0.1em;
+		color: var(--color-text-muted);
+		font-size: 0.8125rem;
+		font-weight: 650;
+		letter-spacing: 0.065em;
 		text-transform: uppercase;
 	}
 
 	.hero h1 {
-		margin: 0 0 var(--space-3) -0.055em;
-		font-size: var(--text-display);
-		letter-spacing: -0.07em;
-		line-height: 0.88;
+		margin: 0;
+		font-size: clamp(3.5rem, 7vw, 5.25rem);
+		font-weight: 680;
+		letter-spacing: -0.035em;
+		line-height: 1.02;
 	}
 
 	.hero-alias {
-		margin: 0;
-		color: var(--accent-strong);
-		font-size: var(--text-sm);
-		font-weight: 650;
-		letter-spacing: 0.18em;
-		text-transform: uppercase;
+		margin: var(--space-4) 0 0;
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		color: var(--color-text-strong);
+		font-size: 1rem;
+		font-weight: 600;
+	}
+
+	.hero-alias__mark {
+		width: 0.375rem;
+		height: 0.375rem;
+		border-radius: 50%;
+		background: var(--color-ember);
 	}
 
 	.hero-statement {
-		align-self: end;
-		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
-		gap: var(--space-4);
-		max-width: 31rem;
-		color: var(--text-muted);
-		font-family: var(--font-display);
-		font-size: var(--text-lead);
-		font-style: italic;
-		line-height: 1.55;
+		max-width: 38rem;
+		margin: var(--space-8) 0 0;
+		color: var(--color-text-muted);
+		font-size: clamp(1.125rem, 1rem + 0.35vw, 1.3125rem);
+		line-height: 1.65;
 	}
 
-	.hero-statement p {
-		margin: 0;
-	}
-
-	.statement-mark {
-		width: 1px;
-		height: 3.5rem;
-		margin-top: 0.35em;
-		background: var(--accent);
+	.home-sections {
+		padding-bottom: var(--section-gap);
 	}
 
 	.content-section {
-		padding-block: clamp(4rem, 9vw, 7rem);
-		border-top: 1px solid var(--border);
-		display: grid;
-		gap: var(--space-12);
+		padding-block: clamp(2.75rem, 6vw, 4.5rem);
+		border-top: 1px solid var(--color-border-subtle);
 	}
 
 	.section-heading {
-		display: grid;
-		gap: var(--space-3);
-		align-content: start;
-	}
-
-	.section-index {
-		margin: 0;
-		color: var(--accent-strong);
-		font-size: var(--text-xs);
-		font-variant-numeric: tabular-nums;
-		font-weight: 700;
-		letter-spacing: 0.15em;
+		margin-bottom: var(--space-6);
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-6);
 	}
 
 	.section-heading h2 {
-		max-width: 13ch;
 		margin: 0;
-		font-size: var(--text-section);
-		letter-spacing: -0.035em;
+		font-size: clamp(1.5rem, 1.3rem + 0.7vw, 1.875rem);
+		font-weight: 680;
+		letter-spacing: -0.025em;
+		line-height: 1.2;
 	}
 
-	.topic-list {
-		margin: 0;
-		padding: 0;
-		border-top: 1px solid var(--border);
-		list-style: none;
-	}
-
-	.topic-list li {
-		min-height: 4.75rem;
-		padding-block: var(--space-4);
-		border-bottom: 1px solid var(--border);
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: var(--space-6);
-		font-family: var(--font-display);
-		font-size: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
-	}
-
-	.topic-number {
+	.section-heading a {
 		flex: 0 0 auto;
-		color: var(--text-muted);
-		font-family: var(--font-body);
-		font-size: var(--text-xs);
-		font-variant-numeric: tabular-nums;
-		letter-spacing: 0.12em;
-	}
-
-	.quiet-state {
-		padding-block: var(--space-6);
-		border-block: 1px solid var(--border);
-		display: grid;
-		gap: var(--space-2);
-		align-content: start;
-	}
-
-	.quiet-state p {
-		max-width: 40rem;
-		margin: 0;
-		color: var(--text-muted);
-	}
-
-	.quiet-state p:first-child {
-		color: var(--text);
-		font-family: var(--font-display);
-		font-size: 1.25rem;
-	}
-
-	.quiet-state a {
-		width: fit-content;
-		min-height: 2.75rem;
-		margin-top: var(--space-4);
+		min-height: 2.5rem;
 		display: inline-flex;
 		align-items: center;
-		color: var(--accent-strong);
-		font-size: var(--text-sm);
-		font-weight: 650;
+		color: var(--color-accent);
+		font-size: 0.875rem;
 	}
 
-	.quiet-state a:hover {
-		color: var(--text);
+	.empty-row {
+		padding-block: var(--space-6);
+		border-block: 1px solid var(--color-border-subtle);
+		display: grid;
+		gap: var(--space-2);
+	}
+
+	.empty-row p {
+		max-width: 40rem;
+		margin: 0;
+		color: var(--color-text-muted);
+	}
+
+	.empty-row .empty-row__title {
+		color: var(--color-text-strong);
+		font-size: 1.0625rem;
+		font-weight: 620;
 	}
 
 	@media (min-width: 48rem) {
-		.hero-kicker {
-			font-size: var(--text-xs);
-			letter-spacing: 0.14em;
-		}
-
 		.hero {
-			grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.7fr);
-			align-items: end;
-			gap: var(--space-16);
-		}
-
-		.content-section {
-			grid-template-columns: minmax(12rem, 0.65fr) minmax(0, 1.5fr);
-			gap: clamp(3rem, 8vw, 8rem);
+			padding-block: 6rem 4.5rem;
 		}
 	}
 
-	@media (min-width: 72rem) {
-		.hero-statement {
-			margin-bottom: var(--space-8);
+	@media (max-width: 30rem) {
+		.section-heading {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: var(--space-2);
+		}
+	}
+
+	@media (hover: hover) {
+		.section-heading a:hover {
+			color: var(--color-accent-hover);
 		}
 	}
 </style>

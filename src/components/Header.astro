@@ -2,6 +2,7 @@
 import ThemeToggle from './ThemeToggle.astro';
 
 const pathname = Astro.url.pathname;
+const currentPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
 const navigation = [
 	{ href: '/writing', label: 'Writing' },
 	{ href: '/notes', label: 'Notes' },
@@ -12,16 +13,16 @@ const navigation = [
 
 <header class="site-header">
 	<div class="site-header__inner">
-		<a class="site-identity" href="/" aria-current={pathname === '/' ? 'page' : undefined}>
-			<span class="ember" aria-hidden="true"></span>
+		<a class="site-identity" href="/" aria-current={currentPath === '/' ? 'page' : undefined}>
+			<span class="site-identity__mark" aria-hidden="true"></span>
 			<span>执炬人</span>
 		</a>
 
-		<nav class="site-nav" aria-label="主导航">
+		<nav class="site-nav" id="primary-navigation" aria-label="Primary">
 			<ul>
 				{navigation.map(({ href, label }) => (
 					<li>
-						<a href={href} aria-current={pathname === href ? 'page' : undefined}>
+						<a href={href} aria-current={currentPath === href ? 'page' : undefined}>
 							{label}
 						</a>
 					</li>
@@ -29,137 +30,261 @@ const navigation = [
 			</ul>
 		</nav>
 
-		<div class="theme-control">
+		<div class="site-controls">
 			<ThemeToggle />
+			<button
+				class="nav-toggle"
+				type="button"
+				data-nav-toggle
+				aria-expanded="false"
+				aria-controls="primary-navigation"
+				aria-label="打开主导航"
+			>
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path class="nav-toggle__line nav-toggle__line--top" d="M5 8h14" />
+					<path class="nav-toggle__line nav-toggle__line--bottom" d="M5 16h14" />
+				</svg>
+			</button>
 		</div>
 	</div>
 </header>
 
+<script>
+	const navToggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+	const navPanel = document.querySelector<HTMLElement>('#primary-navigation');
+	const desktopNavigation = window.matchMedia('(min-width: 48rem)');
+
+	const isNavigationOpen = () => navToggle?.getAttribute('aria-expanded') === 'true';
+
+	const setNavigationOpen = (open: boolean, restoreFocus = false) => {
+		if (!navToggle || !navPanel) return;
+
+		navToggle.setAttribute('aria-expanded', String(open));
+		navToggle.setAttribute('aria-label', open ? '关闭主导航' : '打开主导航');
+		navPanel.toggleAttribute('data-open', open);
+
+		if (!open && restoreFocus) navToggle.focus();
+	};
+
+	navToggle?.addEventListener('click', () => {
+		setNavigationOpen(!isNavigationOpen());
+	});
+
+	navPanel?.addEventListener('click', (event) => {
+		if ((event.target as Element).closest('a')) setNavigationOpen(false);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && isNavigationOpen() && !desktopNavigation.matches) {
+			setNavigationOpen(false, true);
+		}
+	});
+
+	desktopNavigation.addEventListener('change', (event) => {
+		if (event.matches) setNavigationOpen(false);
+	});
+</script>
+
 <style>
 	.site-header {
-		border-bottom: 1px solid var(--border);
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		border-bottom: 1px solid var(--color-border-subtle);
+		background: var(--color-canvas);
 	}
 
 	.site-header__inner {
-		width: min(100%, var(--page-width));
+		width: min(100%, var(--layout-page-max));
 		margin-inline: auto;
-		padding: max(var(--space-3), env(safe-area-inset-top))
-			max(var(--page-gutter), env(safe-area-inset-right)) var(--space-3)
-			max(var(--page-gutter), env(safe-area-inset-left));
+		padding-right: max(var(--layout-gutter), env(safe-area-inset-right));
+		padding-left: max(var(--layout-gutter), env(safe-area-inset-left));
 		display: grid;
-		grid-template-areas:
-			"identity theme"
-			"nav nav";
 		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			"identity controls"
+			"nav nav";
 		align-items: center;
-		column-gap: var(--space-4);
 	}
 
 	.site-identity {
 		grid-area: identity;
-		min-width: 0;
+		width: fit-content;
+		min-height: var(--header-height-mobile);
 		display: inline-flex;
 		align-items: center;
 		gap: var(--space-3);
-		width: fit-content;
-		min-height: 2.75rem;
-		font-family: var(--font-display);
-		font-size: 1.125rem;
-		font-weight: 600;
-		letter-spacing: 0.025em;
+		color: var(--color-text-strong);
+		font-size: 1rem;
+		font-weight: 650;
+		letter-spacing: 0.01em;
 		text-decoration: none;
 	}
 
-	.ember {
-		position: relative;
-		width: 0.45rem;
-		height: 0.45rem;
+	.site-identity__mark {
+		width: 0.375rem;
+		height: 0.375rem;
 		border-radius: 50%;
-		background: var(--accent);
+		background: var(--color-ember);
 	}
 
-	.ember::after {
-		content: '';
-		position: absolute;
-		left: 50%;
-		bottom: 100%;
-		width: 1px;
-		height: 0.8rem;
-		background: var(--border);
+	.site-controls {
+		grid-area: controls;
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
 	}
 
-	.site-identity:hover,
-	.site-identity[aria-current="page"] {
-		color: var(--accent-strong);
+	.nav-toggle {
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0;
+		border: 1px solid transparent;
+		border-radius: var(--radius-sm);
+		display: none;
+		place-items: center;
+		background: transparent;
+		color: var(--color-text-muted);
+		cursor: pointer;
+	}
+
+	:global(html.js) .nav-toggle {
+		display: inline-grid;
+	}
+
+	.nav-toggle svg {
+		width: 1.25rem;
+		height: 1.25rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-width: 1.75;
+	}
+
+	.nav-toggle__line {
+		transform-origin: center;
+		transition: transform var(--motion-normal) var(--ease-standard);
+	}
+
+	.nav-toggle[aria-expanded="true"] .nav-toggle__line--top {
+		transform: translateY(4px) rotate(45deg);
+	}
+
+	.nav-toggle[aria-expanded="true"] .nav-toggle__line--bottom {
+		transform: translateY(-4px) rotate(-45deg);
 	}
 
 	.site-nav {
 		grid-area: nav;
 		min-width: 0;
+		border-top: 1px solid var(--color-border-subtle);
+	}
+
+	:global(html.js) .site-nav {
+		display: none;
+	}
+
+	:global(html.js) .site-nav[data-open] {
+		display: block;
 	}
 
 	.site-nav ul {
 		margin: 0;
-		padding: var(--space-1) 0 0;
+		padding: var(--space-2) 0 var(--space-3);
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, auto));
-		justify-content: space-between;
 		list-style: none;
 	}
 
 	.site-nav a {
 		position: relative;
-		display: inline-grid;
-		place-items: center;
 		min-height: 2.75rem;
-		padding-inline: var(--space-1);
-		color: var(--text-muted);
-		font-size: var(--text-sm);
-		font-weight: 550;
+		padding-inline: var(--space-2);
+		display: flex;
+		align-items: center;
+		color: var(--color-text-muted);
+		font-size: 0.9375rem;
+		font-weight: 500;
 		text-decoration: none;
 	}
 
-	.site-nav a:hover,
 	.site-nav a[aria-current="page"] {
-		color: var(--text);
+		color: var(--color-text-strong);
+		font-weight: 650;
 	}
 
 	.site-nav a[aria-current="page"]::after {
-		content: '';
+		content: "";
 		position: absolute;
-		inset-inline: var(--space-1);
+		inset-inline-start: var(--space-2);
 		bottom: 0.25rem;
-		height: 1px;
-		background: var(--accent);
+		width: 1.5rem;
+		height: 2px;
+		background: var(--color-ember);
 	}
 
-	.theme-control {
-		grid-area: theme;
-		display: flex;
-		justify-content: flex-end;
+	.nav-toggle:active {
+		background: var(--color-surface-active);
+	}
+
+	@media (hover: hover) {
+		.site-identity:hover,
+		.site-nav a:hover {
+			color: var(--color-accent-hover);
+		}
+
+		.site-nav a:hover:not([aria-current="page"]) {
+			text-decoration: underline;
+			text-decoration-thickness: 1px;
+			text-underline-offset: 0.3em;
+		}
+
+		.nav-toggle:hover {
+			border-color: var(--color-border-control);
+			background: var(--color-accent-soft);
+			color: var(--color-accent-hover);
+		}
 	}
 
 	@media (min-width: 48rem) {
 		.site-header__inner {
-			min-height: 5rem;
-			padding-block: var(--space-4);
-			grid-template-areas: "identity nav theme";
-			grid-template-columns: minmax(12rem, 1fr) auto minmax(12rem, 1fr);
+			min-height: var(--header-height);
+			grid-template-columns: minmax(12rem, 1fr) auto auto;
+			grid-template-areas: "identity nav controls";
 			gap: var(--space-8);
+		}
+
+		.site-identity {
+			min-height: var(--header-height);
+		}
+
+		.site-nav,
+		:global(html.js) .site-nav {
+			border-top: 0;
+			display: block;
 		}
 
 		.site-nav ul {
 			padding: 0;
 			display: flex;
+			align-items: center;
 			gap: var(--space-6);
 		}
 
 		.site-nav a {
+			min-height: var(--header-height);
 			padding-inline: 0;
+			font-size: 0.875rem;
 		}
 
 		.site-nav a[aria-current="page"]::after {
 			inset-inline: 0;
+			bottom: 0;
+			width: auto;
+		}
+
+		.nav-toggle,
+		:global(html.js) .nav-toggle {
+			display: none;
 		}
 	}
 </style>

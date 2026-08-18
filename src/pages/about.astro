@@ -8,12 +8,62 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
 	<div class="page-shell">
 		<header class="page-intro">
-			<p class="page-index">Archive / 04</p>
+			<p class="page-eyebrow">Identity</p>
 			<h1 class="page-title">About</h1>
 			<p class="page-description">A brief orientation to this personal digital space.</p>
 		</header>
-		<div class="empty-state">
-			<p>A concise account of the person and intent behind this site will live here.</p>
+
+		<section class="research-focus" id="research" aria-labelledby="research-title">
+			<h2 id="research-title">Research focus</h2>
+			<p>
+				This space follows questions in software security, AI for software security,
+				program analysis, and vulnerability research.
+			</p>
+			<ul>
+				<li>Software Security</li>
+				<li>AI for Software Security</li>
+				<li>Program Analysis</li>
+				<li>Vulnerability Research</li>
+			</ul>
+		</section>
+
+		<div class="archive-empty">
+			<p>A fuller account will appear here when it is ready.</p>
 		</div>
 	</div>
 </BaseLayout>
+
+<style>
+	.research-focus {
+		max-width: var(--layout-prose-max);
+		margin-top: clamp(3.5rem, 8vw, 5.5rem);
+		padding-top: var(--space-8);
+		border-top: 1px solid var(--color-border-subtle);
+	}
+
+	.research-focus h2 {
+		margin: 0 0 var(--space-4);
+		font-size: clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem);
+		font-weight: 680;
+		letter-spacing: -0.025em;
+	}
+
+	.research-focus p {
+		margin: 0;
+		color: var(--color-text-muted);
+	}
+
+	.research-focus ul {
+		margin: var(--space-6) 0 0;
+		padding: 0;
+		border-top: 1px solid var(--color-border-subtle);
+		list-style: none;
+	}
+
+	.research-focus li {
+		padding-block: var(--space-3);
+		border-bottom: 1px solid var(--color-border-subtle);
+		color: var(--color-text-strong);
+		font-weight: 560;
+	}
+</style>
