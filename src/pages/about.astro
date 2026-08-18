@@ -1,69 +1,151 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const focusAreas = [
+	{
+		id: 'agent-systems',
+		title: 'Agent Systems & Engineering',
+		items: [
+			'Agent Harnesses',
+			'Tool Use and Orchestration',
+			'Context and Evaluation',
+			'Reliable Agent Workflows',
+		],
+	},
+	{
+		id: 'software-security',
+		title: 'Software Security',
+		items: ['Vulnerability Discovery', 'Program Analysis', 'Exploitability Validation'],
+	},
+	{
+		id: 'ai4sec',
+		title: 'AI4Sec — The Intersection',
+		items: [
+			'Agentic Security Research',
+			'AI-assisted Program Analysis',
+			'Automated Vulnerability Reasoning',
+			'Closed-loop Validation',
+		],
+	},
+];
+
+const adjacentInterests = ['Penetration Testing', 'Algorithms & Data Structures'];
 ---
 
 <BaseLayout
 	title="About — 执炬人"
-	description="关于执炬人 / Torchbearer127 个人数字空间的简短说明。"
+	description="关于执炬人 / Torchbearer127 在 Agent 系统、软件安全与 AI4Sec 交汇处的工作方向。"
 >
 	<div class="page-shell">
 		<header class="page-intro">
 			<p class="page-eyebrow">Identity</p>
 			<h1 class="page-title">About</h1>
-			<p class="page-description">A brief orientation to this personal digital space.</p>
+			<p class="page-description">
+				A brief orientation to my work across agent systems and software security.
+			</p>
 		</header>
 
 		<section class="research-focus" id="research" aria-labelledby="research-title">
 			<h2 id="research-title">Research focus</h2>
-			<p>
-				This space follows questions in software security, AI for software security,
-				program analysis, and vulnerability research.
+			<p class="research-intro">
+				Agent systems and software security are the two primary axes of my work. AI4Sec is
+				the point where they meet.
 			</p>
-			<ul>
-				<li>Software Security</li>
-				<li>AI for Software Security</li>
-				<li>Program Analysis</li>
-				<li>Vulnerability Research</li>
-			</ul>
+
+			<div class="focus-groups">
+				{focusAreas.map((area) => (
+					<section class="focus-group" aria-labelledby={area.id}>
+						<h3 id={area.id}>{area.title}</h3>
+						<ul>
+							{area.items.map((item) => <li>{item}</li>)}
+						</ul>
+					</section>
+				))}
+			</div>
 		</section>
 
-		<div class="archive-empty">
-			<p>A fuller account will appear here when it is ready.</p>
-		</div>
+		<section class="adjacent-interests" aria-labelledby="interests-title">
+			<h2 id="interests-title">Adjacent interests</h2>
+			<p>Areas I know well or continue to explore beyond my primary focus.</p>
+			<ul>
+				{adjacentInterests.map((interest) => <li>{interest}</li>)}
+			</ul>
+		</section>
 	</div>
 </BaseLayout>
 
 <style>
-	.research-focus {
+	.research-focus,
+	.adjacent-interests {
 		max-width: var(--layout-prose-max);
 		margin-top: clamp(3.5rem, 8vw, 5.5rem);
 		padding-top: var(--space-8);
 		border-top: 1px solid var(--color-border-subtle);
 	}
 
-	.research-focus h2 {
+	.research-focus h2,
+	.adjacent-interests h2 {
 		margin: 0 0 var(--space-4);
 		font-size: clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem);
 		font-weight: 680;
 		letter-spacing: -0.025em;
 	}
 
-	.research-focus p {
+	.research-intro,
+	.adjacent-interests > p {
+		max-width: 38rem;
 		margin: 0;
 		color: var(--color-text-muted);
 	}
 
-	.research-focus ul {
-		margin: var(--space-6) 0 0;
+	.focus-groups,
+	.adjacent-interests ul {
+		margin: var(--space-8) 0 0;
 		padding: 0;
 		border-top: 1px solid var(--color-border-subtle);
+	}
+
+	.focus-group {
+		padding-block: var(--space-6);
+		border-bottom: 1px solid var(--color-border-subtle);
+		display: grid;
+		gap: var(--space-4);
+	}
+
+	.focus-group h3 {
+		margin: 0;
+		font-size: 1.0625rem;
+		font-weight: 650;
+		line-height: 1.45;
+	}
+
+	.focus-group ul,
+	.adjacent-interests ul {
 		list-style: none;
 	}
 
-	.research-focus li {
+	.focus-group ul {
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: var(--space-2);
+	}
+
+	.focus-group li,
+	.adjacent-interests li {
+		color: var(--color-text);
+	}
+
+	.adjacent-interests li {
 		padding-block: var(--space-3);
 		border-bottom: 1px solid var(--color-border-subtle);
-		color: var(--color-text-strong);
 		font-weight: 560;
+	}
+
+	@media (min-width: 40rem) {
+		.focus-group {
+			grid-template-columns: minmax(11rem, 0.75fr) minmax(0, 1.25fr);
+			gap: var(--space-8);
+		}
 	}
 </style>
