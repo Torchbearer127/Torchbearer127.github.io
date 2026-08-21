@@ -6,6 +6,8 @@
 	--fx-specular: rgb(var(--fx-blue-rgb) / 0.92);
 	--fx-ember-rgb: 240 90 42;
 	--fx-ember: var(--color-ember);
+	--fx-field-line: rgb(var(--fx-blue-rgb) / 0.26);
+	--fx-field-node: rgb(var(--fx-blue-rgb) / 0.58);
 }
 
 :root[data-theme="dark"] {
@@ -14,6 +16,12 @@
 	--fx-blue-faint: rgb(var(--fx-blue-rgb) / 0.2);
 	--fx-specular: rgb(var(--fx-blue-rgb) / 0.96);
 	--fx-ember-rgb: 243 154 74;
+	--fx-field-line: rgb(var(--fx-blue-rgb) / 0.26);
+	--fx-field-node: rgb(var(--fx-blue-rgb) / 0.56);
+}
+
+[data-hero-field] {
+	opacity: 0.62;
 }
 
 [data-hero-layer="content"] {
@@ -72,6 +80,19 @@
 	--spec-strength: 0;
 }
 
+.ember-particle {
+	position: absolute;
+	left: calc(50% - 1.5px);
+	top: calc(50% - 1.5px);
+	z-index: 3;
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	background: var(--fx-ember);
+	pointer-events: none;
+	animation: ember-activation 500ms cubic-bezier(0.16, 1, 0.3, 1) var(--ember-delay) both;
+}
+
 @supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
 	[data-specular]::after {
 		content: "";
@@ -114,6 +135,20 @@
 	}
 }
 
+@keyframes ember-activation {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, 0, 0) scale(0.7);
+	}
+	18% {
+		opacity: 0.9;
+	}
+	100% {
+		opacity: 0;
+		transform: translate3d(var(--ember-x), var(--ember-y), 0) scale(0.2);
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	[data-hero-layer],
 	[data-proximity] {
@@ -124,7 +159,18 @@
 		animation: none !important;
 	}
 
+	.ember-particle {
+		display: none !important;
+		animation: none !important;
+	}
+
 	[data-specular] {
 		--spec-strength: 0 !important;
+	}
+}
+
+@media (max-width: 39.999rem) {
+	[data-hero-field] {
+		opacity: 0.3;
 	}
 }

@@ -32,7 +32,9 @@ const send = (method, params = {}) => new Promise((resolve, reject) => {
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 const evaluate = async (expression) => {
 	const result = await send('Runtime.evaluate', { expression, returnByValue: true });
-	if (result.exceptionDetails) throw new Error(result.exceptionDetails.text);
+	if (result.exceptionDetails) {
+		throw new Error(result.exceptionDetails.exception?.description ?? result.exceptionDetails.text);
+	}
 	return result.result.value;
 };
 
@@ -40,11 +42,16 @@ await send('Page.enable');
 await send('Runtime.enable');
 
 const load = async ({ width = 1440, height = 900, theme = 'light', reduced = false } = {}) => {
+	await evaluate(`localStorage.removeItem('torchbearer-theme')`);
 	await send('Emulation.setDeviceMetricsOverride', {
 		width,
 		height,
 		deviceScaleFactor: 1,
 		mobile: width < 600,
+	});
+	await send('Emulation.setTouchEmulationEnabled', {
+		enabled: width < 600,
+		maxTouchPoints: width < 600 ? 5 : 1,
 	});
 	await send('Emulation.setEmulatedMedia', {
 		features: [
@@ -164,6 +171,134 @@ await report('Reduced motion keeps all pointer-driven transforms static', async 
 	assert.equal(result.layerTransform, 'none');
 	assert.equal(result.navTransform, 'none');
 	assert.equal(result.specular, 0);
+});
+
+await report('Hero field is decorative, DPR-capped, dynamic on fine input, and idle-bounded', async () => {
+	await load();
+	const before = await evaluate(`(() => {
+		const canvas = document.querySelector('[data-hero-field]');
+		const hero = document.querySelector('[data-home-hero]').getBoundingClientRect();
+		return {
+			ariaHidden: canvas.getAttribute('aria-hidden'),
+			pointerEvents: getComputedStyle(canvas).pointerEvents,
+			dpr: Number.parseFloat(canvas.dataset.fieldDpr),
+			pathCount: Number.parseInt(canvas.dataset.fieldPathCount, 10),
+			mode: canvas.dataset.fieldMode,
+			renders: Number.parseInt(canvas.dataset.fieldRenderCount, 10),
+			pointer: { x: hero.right - 120, y: hero.top + 170 },
+		};
+	})()`);
+	assert.equal(before.ariaHidden, 'true');
+	assert.equal(before.pointerEvents, 'none');
+	assert.ok(before.dpr <= 1.5);
+	assert.ok(before.pathCount >= 20 && before.pathCount <= 26);
+	assert.equal(before.mode, 'dynamic');
+
+	await send('Input.dispatchMouseEvent', {
+		type: 'mouseMoved',
+		x: before.pointer.x,
+		y: before.pointer.y,
+		pointerType: 'mouse',
+	});
+	await wait(180);
+	const afterPointer = await evaluate(`Number.parseInt(
+		document.querySelector('[data-hero-field]').dataset.fieldRenderCount,
+		10
+	)`);
+	assert.ok(afterPointer > before.renders);
+
+	await wait(2800);
+	const settled = await evaluate(`({
+		state: document.documentElement.dataset.motionState,
+		renders: Number.parseInt(document.querySelector('[data-hero-field]').dataset.fieldRenderCount, 10),
+	})`);
+	await wait(180);
+	assert.equal(settled.state, 'idle');
+	assert.equal(
+		await evaluate(`Number.parseInt(document.querySelector('[data-hero-field]').dataset.fieldRenderCount, 10)`),
+		settled.renders,
+	);
+});
+
+await report('Reduced motion renders one static Hero field composition', async () => {
+	await load({ reduced: true });
+	const before = await evaluate(`(() => {
+		const canvas = document.querySelector('[data-hero-field]');
+		return {
+			mode: canvas.dataset.fieldMode,
+			renders: Number.parseInt(canvas.dataset.fieldRenderCount, 10),
+		};
+	})()`);
+	assert.equal(before.mode, 'static');
+	await send('Input.dispatchMouseEvent', {
+		type: 'mouseMoved',
+		x: 1180,
+		y: 260,
+		pointerType: 'mouse',
+	});
+	await wait(300);
+	assert.equal(
+		await evaluate(`Number.parseInt(document.querySelector('[data-hero-field]').dataset.fieldRenderCount, 10)`),
+		before.renders,
+	);
+});
+
+await report('Ember activation is click-only, finite, and reduced-motion safe', async () => {
+	await load();
+	await send('Input.dispatchMouseEvent', {
+		type: 'mouseMoved',
+		x: 1230,
+		y: 32,
+		pointerType: 'mouse',
+	});
+	await wait(120);
+	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
+	await evaluate(`document.querySelector('[data-ember-burst]').click()`);
+	const particleCount = await evaluate(`document.querySelectorAll('[data-ember-particle]').length`);
+	assert.ok(particleCount >= 3 && particleCount <= 5);
+	await wait(720);
+	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
+
+	await load({ reduced: true });
+	await evaluate(`document.querySelector('[data-ember-burst]').click()`);
+	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
+});
+
+await report('Tablet and narrow viewport geometry stays collision-free', async () => {
+	const cases = [
+		{ width: 1024, height: 768, theme: 'light', paths: 24 },
+		{ width: 1024, height: 768, theme: 'dark', paths: 24 },
+		{ width: 768, height: 1024, theme: 'light', paths: 24 },
+		{ width: 768, height: 1024, theme: 'dark', paths: 24 },
+		{ width: 320, height: 568, theme: 'light', paths: 12 },
+	];
+	for (const item of cases) {
+		console.log(`  QA ${item.theme} ${item.width}x${item.height}`);
+		await load(item);
+		const result = await evaluate(`(() => {
+			const brand = document.querySelector('.site-identity').getBoundingClientRect();
+			const nav = document.querySelector('.site-nav');
+			const navRect = nav.getBoundingClientRect();
+			const navVisible = getComputedStyle(nav).display !== 'none';
+			const canvas = document.querySelector('[data-hero-field]');
+			return {
+				theme: document.documentElement.dataset.theme,
+				motionInput: document.documentElement.dataset.motionInput,
+				clientWidth: document.documentElement.clientWidth,
+				scrollWidth: document.documentElement.scrollWidth,
+				headerCollision: navVisible && brand.right > navRect.left,
+				pathCount: Number.parseInt(canvas.dataset.fieldPathCount, 10),
+				latestTop: document.querySelector('#latest-writing').getBoundingClientRect().top,
+			};
+		})()`);
+		assert.equal(result.theme, item.theme);
+		assert.equal(result.clientWidth, item.width);
+		assert.equal(result.scrollWidth, item.width);
+		assert.equal(result.headerCollision, false);
+		assert.equal(result.pathCount, item.paths);
+		if (item.width >= 768) assert.ok(result.latestTop < item.height);
+		if (item.width === 320) assert.equal(result.motionInput, 'coarse');
+	}
 });
 
 await report('Mobile navigation and viewport remain intact', async () => {
