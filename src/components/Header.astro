@@ -212,6 +212,10 @@ const navigation = [
 		font-weight: 650;
 	}
 
+	:global(:root[data-theme="light"]) .site-nav a[aria-current="page"] {
+		color: var(--color-accent);
+	}
+
 	.site-nav a[aria-current="page"]::after {
 		content: "";
 		position: absolute;
