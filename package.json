@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "test": "node --test tests/motion/*.test.mjs",
+    "test:browser": "node tests/browser/motion-contract.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

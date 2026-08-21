@@ -2,6 +2,7 @@
 	class="theme-toggle"
 	type="button"
 	data-theme-toggle
+	data-specular
 	aria-label="切换至深色主题"
 	aria-pressed="false"
 	title="切换至深色主题"
@@ -43,6 +44,10 @@
 			toggle.setAttribute('aria-label', `切换至${nextTheme}主题`);
 			toggle.title = `切换至${nextTheme}主题`;
 		}
+
+		window.dispatchEvent(new CustomEvent('torchbearer:themechange', {
+			detail: { theme },
+		}));
 	};
 
 	toggle?.addEventListener('click', () => {

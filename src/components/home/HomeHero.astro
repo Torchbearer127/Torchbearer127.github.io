@@ -1,0 +1,189 @@
+<section class="hero" aria-labelledby="identity-title" data-home-hero>
+	<div class="hero__ambient" data-hero-layer="ambient" aria-hidden="true">
+		<span class="hero__trace hero__trace--one"></span>
+		<span class="hero__trace hero__trace--two"></span>
+		<span class="hero__node"></span>
+	</div>
+
+	<div class="hero__content" data-hero-layer="content">
+		<p class="hero-kicker" data-intro>Agent Systems × Software Security</p>
+		<p class="hero-focus" data-intro>AI4Sec · Program Analysis · Agent Engineering</p>
+		<h1 id="identity-title" data-intro>执炬人</h1>
+		<p class="hero-alias" data-intro>
+			<span class="hero-alias__mark" data-hero-ember aria-hidden="true"></span>
+			<span translate="no">Torchbearer127</span>
+		</p>
+		<p class="hero-statement" data-intro>
+			I work on agent systems and software security, with AI4Sec at their intersection.
+		</p>
+	</div>
+
+	<div class="hero__signal" data-hero-layer="signal" aria-hidden="true">
+		<span></span><span></span><span></span>
+	</div>
+</section>
+
+<style>
+	.hero {
+		position: relative;
+		isolation: isolate;
+		max-width: 52rem;
+		padding-block: 4rem 3rem;
+		overflow: clip;
+	}
+
+	.hero__content {
+		position: relative;
+		z-index: 2;
+	}
+
+	.hero__ambient,
+	.hero__signal {
+		position: absolute;
+		inset: 2.5rem -1rem 2rem 38%;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.hero__ambient {
+		opacity: 0.72;
+	}
+
+	.hero__trace {
+		position: absolute;
+		height: 1px;
+		border-radius: 999px;
+		background: var(--fx-blue-faint);
+		transform-origin: left center;
+	}
+
+	.hero__trace--one {
+		top: 31%;
+		right: 4%;
+		width: 45%;
+		transform: rotate(-18deg);
+	}
+
+	.hero__trace--two {
+		top: 52%;
+		right: 14%;
+		width: 28%;
+		transform: rotate(24deg);
+	}
+
+	.hero__node {
+		position: absolute;
+		top: calc(31% - 2px);
+		right: calc(49% - 2px);
+		width: 5px;
+		height: 5px;
+		border: 1px solid var(--fx-blue-soft);
+		border-radius: 50%;
+	}
+
+	.hero__signal {
+		inset: auto 7% 22% auto;
+		width: 2.5rem;
+		height: 2.5rem;
+		display: grid;
+		place-items: center;
+		opacity: 0.52;
+	}
+
+	.hero__signal span {
+		position: absolute;
+		width: 3px;
+		height: 3px;
+		border-radius: 50%;
+		background: var(--fx-blue-soft);
+	}
+
+	.hero__signal span:nth-child(1) {
+		transform: translate(-0.9rem, 0.55rem);
+	}
+
+	.hero__signal span:nth-child(2) {
+		transform: translate(0.4rem, -0.8rem);
+	}
+
+	.hero__signal span:nth-child(3) {
+		transform: translate(0.95rem, 0.65rem);
+	}
+
+	.hero-kicker {
+		margin: 0;
+		color: var(--color-text-strong);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	:global(:root[data-theme="light"]) .hero-kicker {
+		color: var(--color-accent);
+	}
+
+	.hero-focus {
+		margin: var(--space-2) 0 var(--space-6);
+		color: var(--color-text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		font-weight: 560;
+		letter-spacing: 0;
+	}
+
+	.hero h1 {
+		margin: 0;
+		font-size: clamp(3.5rem, 7vw, 5.25rem);
+		font-weight: 680;
+		letter-spacing: -0.035em;
+		line-height: 1.02;
+	}
+
+	.hero-alias {
+		margin: var(--space-4) 0 0;
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		color: var(--color-text-strong);
+		font-size: 1rem;
+		font-weight: 600;
+	}
+
+	:global(:root[data-theme="light"]) .hero-alias {
+		color: var(--color-accent);
+	}
+
+	.hero-alias__mark {
+		width: 0.375rem;
+		height: 0.375rem;
+		border-radius: 50%;
+		background: var(--color-ember);
+	}
+
+	.hero-statement {
+		max-width: 38rem;
+		margin: var(--space-8) 0 0;
+		color: var(--color-text-muted);
+		font-size: clamp(1.125rem, 1rem + 0.35vw, 1.3125rem);
+		line-height: 1.65;
+	}
+
+	:global(:root[data-theme="light"]) .hero-statement {
+		color: var(--color-text);
+	}
+
+	@media (min-width: 48rem) {
+		.hero {
+			padding-block: 6rem 4.5rem;
+		}
+	}
+
+	@media (max-width: 39.999rem) {
+		.hero__ambient,
+		.hero__signal {
+			display: none;
+		}
+	}
+</style>

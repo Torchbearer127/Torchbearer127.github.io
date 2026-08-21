@@ -1,0 +1,130 @@
+:root {
+	--fx-blue-rgb: 23 105 224;
+	--fx-blue: var(--color-accent);
+	--fx-blue-soft: rgb(var(--fx-blue-rgb) / 0.34);
+	--fx-blue-faint: rgb(var(--fx-blue-rgb) / 0.14);
+	--fx-specular: rgb(var(--fx-blue-rgb) / 0.92);
+	--fx-ember-rgb: 240 90 42;
+	--fx-ember: var(--color-ember);
+}
+
+:root[data-theme="dark"] {
+	--fx-blue-rgb: 131 180 238;
+	--fx-blue-soft: rgb(var(--fx-blue-rgb) / 0.42);
+	--fx-blue-faint: rgb(var(--fx-blue-rgb) / 0.2);
+	--fx-specular: rgb(var(--fx-blue-rgb) / 0.96);
+	--fx-ember-rgb: 243 154 74;
+}
+
+[data-hero-layer="content"] {
+	transform: translate3d(
+		calc(var(--hero-pointer-x, 0) * 0.65px),
+		calc(var(--hero-pointer-y, 0) * 0.65px),
+		0
+	);
+}
+
+[data-hero-layer="ambient"] {
+	transform: translate3d(
+		calc(var(--hero-pointer-x, 0) * 5px),
+		calc(var(--hero-pointer-y, 0) * 4px),
+		0
+	) rotate(calc(var(--hero-pointer-x, 0) * 0.18deg));
+}
+
+[data-hero-layer="signal"] {
+	transform: translate3d(
+		calc(var(--hero-pointer-x, 0) * 3px),
+		calc(var(--hero-pointer-y, 0) * 2.5px),
+		0
+	);
+}
+
+[data-hero-ember].is-responding {
+	animation: hero-ember-response 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-proximity] {
+	--proximity: 0;
+	transform: translate3d(0, calc(var(--proximity) * -1.25px), 0);
+}
+
+[data-proximity]::before {
+	content: "";
+	position: absolute;
+	inset-inline: 18%;
+	bottom: 0.32rem;
+	height: 1px;
+	background: var(--fx-blue);
+	opacity: calc(var(--proximity) * 0.72);
+	transform: scaleX(var(--proximity));
+	transform-origin: center;
+	pointer-events: none;
+}
+
+[data-proximity]:focus-visible::before {
+	opacity: 0.72;
+	transform: scaleX(1);
+}
+
+[data-specular] {
+	--spec-angle: 0deg;
+	--spec-strength: 0;
+}
+
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+	[data-specular]::after {
+		content: "";
+		position: absolute;
+		inset: -1px;
+		z-index: 2;
+		padding: 1px;
+		border-radius: inherit;
+		background: conic-gradient(
+			from var(--spec-angle),
+			transparent 0deg 118deg,
+			var(--fx-specular) 164deg,
+			transparent 210deg 360deg
+		);
+		opacity: var(--spec-strength);
+		pointer-events: none;
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		mask-composite: exclude;
+	}
+
+	[data-specular]:focus-visible::after {
+		opacity: 0.72;
+	}
+}
+
+@keyframes hero-ember-response {
+	0%, 100% {
+		box-shadow: 0 0 0 0 rgb(var(--fx-ember-rgb) / 0);
+		transform: scale(1);
+	}
+	42% {
+		box-shadow: 0 0 0 5px rgb(var(--fx-ember-rgb) / 0.12);
+		transform: scale(1.34);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-hero-layer],
+	[data-proximity] {
+		transform: none !important;
+	}
+
+	[data-hero-ember] {
+		animation: none !important;
+	}
+
+	[data-specular] {
+		--spec-strength: 0 !important;
+	}
+}
