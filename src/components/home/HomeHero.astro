@@ -11,15 +11,15 @@
 	</div>
 
 	<div class="hero__content" data-hero-layer="content">
-		<p class="hero-kicker" data-intro="kicker">Agent Systems × Software Security</p>
-		<p class="hero-focus" data-intro="focus">AI4Sec · Program Analysis · Agent Engineering</p>
+		<p class="hero-kicker" data-intro="kicker">Agent Systems × Cyberspace Security</p>
+		<p class="hero-focus" data-intro="focus">AI4Sec · Software Security · Agent Engineering · Agent Security</p>
 		<h1 id="identity-title" data-intro="title">执炬人</h1>
 		<p class="hero-alias" data-intro="alias">
 			<span class="hero-alias__mark" data-hero-ember aria-hidden="true"></span>
 			<span translate="no">Torchbearer127</span>
 		</p>
 		<p class="hero-statement" data-intro="statement">
-			I work on agent systems and software security, with AI4Sec at their intersection.
+			“In the heart of darkness, I found there was, within me, an invincible torch.”
 		</p>
 	</div>
 
@@ -140,7 +140,7 @@
 
 	.hero h1 {
 		margin: 0;
-		font-size: clamp(3.5rem, 7vw, 5.25rem);
+		font-size: clamp(3.25rem, 6vw, 4.75rem);
 		font-weight: 680;
 		letter-spacing: -0.035em;
 		line-height: 1.02;
@@ -168,20 +168,21 @@
 	}
 
 	.hero-statement {
-		max-width: 38rem;
 		margin: var(--space-8) 0 0;
 		color: var(--color-text-muted);
-		font-size: clamp(1.125rem, 1rem + 0.35vw, 1.3125rem);
+		font-family: ui-serif, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+		font-size: 1rem;
+		font-style: italic;
 		line-height: 1.65;
-	}
-
-	:global(:root[data-theme="light"]) .hero-statement {
-		color: var(--color-text);
 	}
 
 	@media (min-width: 48rem) {
 		.hero {
 			padding-block: 6rem 4.5rem;
+		}
+
+		.hero-statement {
+			white-space: nowrap;
 		}
 	}
 

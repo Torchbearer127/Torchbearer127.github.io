@@ -98,6 +98,57 @@ await report('Hero extraction preserves visible content and exposes motion hooks
 	});
 });
 
+await report('Hero identity title keeps a restrained responsive scale', async () => {
+	for (const item of [
+		{ width: 1440, height: 900, maxRatio: 4.75 },
+		{ width: 390, height: 844, maxRatio: 3.25 },
+	]) {
+		await load(item);
+		const result = await evaluate(`(() => {
+			const title = document.querySelector('#identity-title');
+			const alias = document.querySelector('.hero-alias');
+			return {
+				titleSize: Number.parseFloat(getComputedStyle(title).fontSize),
+				aliasSize: Number.parseFloat(getComputedStyle(alias).fontSize),
+				titleRight: title.getBoundingClientRect().right,
+				viewportWidth: document.documentElement.clientWidth,
+			};
+		})()`);
+		const ratio = result.titleSize / result.aliasSize;
+		assert.ok(ratio <= item.maxRatio);
+		assert.ok(ratio >= 3);
+		assert.ok(result.titleRight <= result.viewportWidth);
+	}
+});
+
+await report('Hero path signal remains visible across both themes', async () => {
+	for (const item of [
+		{ theme: 'light', minimumCanvasAlpha: 0.00095, lineAlpha: '.34' },
+		{ theme: 'dark', minimumCanvasAlpha: 0.001, lineAlpha: '.36' },
+	]) {
+		await load({ theme: item.theme, reduced: true });
+		const result = await evaluate(`(() => {
+			const field = document.querySelector('[data-hero-field]');
+			const style = getComputedStyle(field);
+			const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
+			let alphaTotal = 0;
+			for (let index = 3; index < pixels.length; index += 4) {
+				if (pixels[index] > 0) {
+					alphaTotal += pixels[index];
+				}
+			}
+			return {
+				paths: Number.parseInt(field.dataset.fieldPathCount ?? '0', 10),
+				line: style.getPropertyValue('--fx-field-line'),
+				effectiveCanvasAlpha: alphaTotal / (pixels.length / 4) / 255 * Number.parseFloat(style.opacity),
+			};
+		})()`);
+		assert.equal(result.paths, 26);
+		assert.ok(result.line.includes(`/ ${item.lineAlpha}`));
+		assert.ok(result.effectiveCanvasAlpha >= item.minimumCanvasAlpha);
+	}
+});
+
 await report('One runtime drives restrained Hero, Header, and specular response then idles', async () => {
 	await load();
 	const targets = await evaluate(`(() => {
@@ -288,14 +339,75 @@ await report('Lower-page fields render when their sections enter the viewport', 
 	await wait(280);
 	const after = await evaluate(`(() => {
 		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const style = getComputedStyle(field);
+		const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
+		let alphaTotal = 0;
+		for (let index = 3; index < pixels.length; index += 4) {
+			if (pixels[index] > 0) {
+				alphaTotal += pixels[index];
+			}
+		}
 		return {
 			renders: Number.parseInt(field.dataset.fieldRenderCount ?? '0', 10),
 			visibleTop: field.getBoundingClientRect().top,
 			visibleBottom: field.getBoundingClientRect().bottom,
+			effectiveCanvasAlpha: alphaTotal / (pixels.length / 4) / 255 * Number.parseFloat(style.opacity),
 		};
 	})()`);
 	assert.ok(after.renders > before);
 	assert.ok(after.visibleTop < 900 && after.visibleBottom > 0);
+	assert.ok(after.effectiveCanvasAlpha >= 0.00035);
+});
+
+await report('Dark lower-page paths retain a visible starlight signal', async () => {
+	await load({ theme: 'dark' });
+	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await wait(280);
+	const result = await evaluate(`(() => {
+		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const style = getComputedStyle(field);
+		const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
+		let alphaTotal = 0;
+		for (let index = 3; index < pixels.length; index += 4) {
+			if (pixels[index] > 0) {
+				alphaTotal += pixels[index];
+			}
+		}
+		return {
+			line: style.getPropertyValue('--fx-field-line'),
+			effectiveCanvasAlpha: alphaTotal / (pixels.length / 4) / 255 * Number.parseFloat(style.opacity),
+		};
+	})()`);
+	assert.ok(result.line.includes('/ .52'));
+	assert.ok(result.effectiveCanvasAlpha >= 0.0005);
+});
+
+await report('Dark lower-page junctions render a sparse stellar halo', async () => {
+	const inspectHub = async () => evaluate(`(() => {
+		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const context = field.getContext('2d');
+		const patchSize = 21;
+		const x = Math.round(field.width * 0.68 - patchSize / 2);
+		const y = Math.round(field.height * 0.2 - patchSize / 2);
+		const pixels = context.getImageData(x, y, patchSize, patchSize).data;
+		let litPixels = 0;
+		for (let index = 3; index < pixels.length; index += 4) {
+			if (pixels[index] > 0) litPixels += 1;
+		}
+		return litPixels;
+	})()`);
+
+	await load({ theme: 'light' });
+	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await wait(280);
+	const lightHubPixels = await inspectHub();
+
+	await load({ theme: 'dark' });
+	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await wait(280);
+	const darkHubPixels = await inspectHub();
+
+	assert.ok(darkHubPixels >= lightHubPixels + 20);
 });
 
 await report('Ember activation is click-only, finite, and reduced-motion safe', async () => {
@@ -314,12 +426,14 @@ await report('Ember activation is click-only, finite, and reduced-motion safe', 
 		return {
 			count: items.length,
 			size: items[0] ? getComputedStyle(items[0]).width : null,
+			duration: items[0] ? getComputedStyle(items[0]).animationDuration : null,
 			color: items[0] ? getComputedStyle(items[0]).backgroundColor : null,
 			identityColor: getComputedStyle(document.querySelector('[data-hero-ember]')).backgroundColor,
 		};
 	})()`);
 	assert.equal(particles.count, 5);
 	assert.equal(particles.size, '4px');
+	assert.equal(particles.duration, '0.62s');
 	assert.equal(particles.color, particles.identityColor);
 	await wait(720);
 	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
@@ -366,6 +480,40 @@ await report('Tablet and narrow viewport geometry stays collision-free', async (
 	}
 });
 
+await report('Mobile retains a low-density lower-page signal field', async () => {
+	await load({ width: 390, height: 844 });
+	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await wait(280);
+	const result = await evaluate(`(() => {
+		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const style = getComputedStyle(field);
+		let alphaTotal = 0;
+		if (field.width > 1 && field.height > 1) {
+			const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
+			for (let index = 3; index < pixels.length; index += 4) {
+				if (pixels[index] > 0) {
+					alphaTotal += pixels[index];
+				}
+			}
+		}
+		return {
+			display: style.display,
+			paths: Number.parseInt(field.dataset.fieldPathCount ?? '0', 10),
+			renders: Number.parseInt(field.dataset.fieldRenderCount ?? '0', 10),
+			effectiveCanvasAlpha: alphaTotal === 0
+				? 0
+				: alphaTotal / (field.width * field.height) / 255 * Number.parseFloat(style.opacity),
+			clientWidth: document.documentElement.clientWidth,
+			scrollWidth: document.documentElement.scrollWidth,
+		};
+	})()`);
+	assert.equal(result.display, 'block');
+	assert.equal(result.paths, 5);
+	assert.ok(result.renders > 0);
+	assert.ok(result.effectiveCanvasAlpha >= 0.00018);
+	assert.equal(result.scrollWidth, result.clientWidth);
+});
+
 await report('Mobile navigation and viewport remain intact', async () => {
 	await load({ width: 390, height: 844 });
 	const result = await evaluate(`(() => {
@@ -389,7 +537,7 @@ await report('Mobile navigation and viewport remain intact', async () => {
 		focusRestored: true,
 		clientWidth: 390,
 		scrollWidth: 390,
-		sectionFieldDisplays: ['none', 'none', 'none'],
+		sectionFieldDisplays: ['block', 'block', 'block'],
 	});
 });
 

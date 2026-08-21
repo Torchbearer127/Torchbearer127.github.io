@@ -175,6 +175,7 @@ const initField = (canvas: HTMLCanvasElement, engine: MotionEngine) => {
 	let composition = createPathComposition(rect.width, rect.height, seed, variant);
 	let lineColor = '';
 	let nodeColor = '';
+	let nodeGlowColor = '';
 	let visible = true;
 	let needsRender = true;
 	let renderCount = 0;
@@ -184,6 +185,7 @@ const initField = (canvas: HTMLCanvasElement, engine: MotionEngine) => {
 		const styles = getComputedStyle(canvas);
 		lineColor = styles.getPropertyValue('--fx-field-line').trim();
 		nodeColor = styles.getPropertyValue('--fx-field-node').trim();
+		nodeGlowColor = styles.getPropertyValue('--fx-field-node-glow').trim();
 		needsRender = true;
 		engine.request();
 	};
@@ -235,6 +237,17 @@ const initField = (canvas: HTMLCanvasElement, engine: MotionEngine) => {
 		context.fillStyle = nodeColor;
 		for (const junction of composition.junctions) {
 			const node = toCanvasPoint(shifted(junction, pointer, direction, allowDisplacement, maximum), width, height);
+			if (variant !== 'hero' && nodeGlowColor) {
+				context.save();
+				context.globalAlpha = 0.34;
+				context.fillStyle = nodeGlowColor;
+				context.shadowColor = nodeGlowColor;
+				context.shadowBlur = 4;
+				context.beginPath();
+				context.arc(node.x, node.y, 1.25, 0, Math.PI * 2);
+				context.fill();
+				context.restore();
+			}
 			context.globalAlpha = variant === 'hero' ? 0.72 : 0.5;
 			context.beginPath();
 			context.arc(node.x, node.y, variant === 'hero' ? 1.35 : 1.1, 0, Math.PI * 2);
