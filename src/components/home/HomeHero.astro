@@ -1,9 +1,9 @@
----
-import HeroField from '../effects/HeroField.astro';
----
-
-<section class="hero" aria-labelledby="identity-title" data-home-hero>
-	<HeroField />
+<section
+	class="hero"
+	aria-labelledby="identity-title"
+	data-home-hero
+	data-intro-pattern="signal-reveal"
+>
 	<div class="hero__ambient" data-hero-layer="ambient" aria-hidden="true">
 		<span class="hero__trace hero__trace--one"></span>
 		<span class="hero__trace hero__trace--two"></span>
@@ -11,14 +11,14 @@ import HeroField from '../effects/HeroField.astro';
 	</div>
 
 	<div class="hero__content" data-hero-layer="content">
-		<p class="hero-kicker" data-intro>Agent Systems × Software Security</p>
-		<p class="hero-focus" data-intro>AI4Sec · Program Analysis · Agent Engineering</p>
-		<h1 id="identity-title" data-intro>执炬人</h1>
-		<p class="hero-alias" data-intro>
+		<p class="hero-kicker" data-intro="kicker">Agent Systems × Software Security</p>
+		<p class="hero-focus" data-intro="focus">AI4Sec · Program Analysis · Agent Engineering</p>
+		<h1 id="identity-title" data-intro="title">执炬人</h1>
+		<p class="hero-alias" data-intro="alias">
 			<span class="hero-alias__mark" data-hero-ember aria-hidden="true"></span>
 			<span translate="no">Torchbearer127</span>
 		</p>
-		<p class="hero-statement" data-intro>
+		<p class="hero-statement" data-intro="statement">
 			I work on agent systems and software security, with AI4Sec at their intersection.
 		</p>
 	</div>

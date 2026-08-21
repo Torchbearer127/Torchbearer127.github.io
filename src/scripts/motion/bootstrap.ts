@@ -1,6 +1,6 @@
 import { initEmber } from './ember.ts';
 import { initHeaderProximity } from './header-proximity.ts';
-import { initHeroField } from './hero-field.ts';
+import { initPathFields } from './hero-field.ts';
 import { initHeroMotion } from './hero-motion.ts';
 import { MotionEngine } from './motion-engine.ts';
 import { initSpecular } from './specular.ts';
@@ -39,7 +39,7 @@ finePointer.addEventListener('change', syncCapabilities);
 const cleanups = [
 	initEmber(),
 	initHeroMotion(engine),
-	initHeroField(engine),
+	initPathFields(engine),
 	initHeaderProximity(engine),
 	initSpecular(engine),
 ];

@@ -1,8 +1,9 @@
 const PARTICLES = [
-	{ x: -12, y: -17, delay: 0 },
-	{ x: 11, y: -15, delay: 24 },
-	{ x: -16, y: -5, delay: 42 },
-	{ x: 15, y: -3, delay: 18 },
+	{ x: -14, y: -20, delay: 0 },
+	{ x: 13, y: -18, delay: 24 },
+	{ x: -19, y: -7, delay: 42 },
+	{ x: 19, y: -5, delay: 18 },
+	{ x: 1, y: -24, delay: 12 },
 ];
 
 export const initEmber = () => {

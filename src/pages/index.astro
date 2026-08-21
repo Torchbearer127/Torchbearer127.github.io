@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroField from '../components/effects/HeroField.astro';
+import SectionField from '../components/effects/SectionField.astro';
 import HomeHero from '../components/home/HomeHero.astro';
 
 const sections = [
@@ -10,6 +12,8 @@ const sections = [
 		emptyDescription: 'Long-form work will appear here when it is ready.',
 		href: '/writing',
 		linkLabel: 'Browse Writing',
+		fieldVariant: 'section-right' as const,
+		fieldSeed: 211,
 	},
 	{
 		id: 'recent-notes',
@@ -18,6 +22,8 @@ const sections = [
 		emptyDescription: 'Research notes and working observations will collect here.',
 		href: '/notes',
 		linkLabel: 'Browse Notes',
+		fieldVariant: 'section-left' as const,
+		fieldSeed: 337,
 	},
 	{
 		id: 'selected-projects',
@@ -26,17 +32,27 @@ const sections = [
 		emptyDescription: 'Selected tools and experiments will be documented with their context intact.',
 		href: '/projects',
 		linkLabel: 'Browse Projects',
+		fieldVariant: 'section-right' as const,
+		fieldSeed: 463,
 	},
 ];
 ---
 
 <BaseLayout>
 	<div class="home-shell">
-		<HomeHero />
+		<div class="hero-stage" data-hero-stage data-field-surface>
+			<HeroField />
+			<HomeHero />
+		</div>
 
 		<div class="home-sections">
 			{sections.map((section) => (
-				<section class="content-section" aria-labelledby={section.id}>
+				<section
+					class="content-section"
+					aria-labelledby={section.id}
+					data-field-surface
+				>
+					<SectionField variant={section.fieldVariant} seed={section.fieldSeed} />
 					<div class="section-heading">
 						<h2 id={section.id}>{section.title}</h2>
 						<a href={section.href}>{section.linkLabel} <span aria-hidden="true">→</span></a>
@@ -63,7 +79,14 @@ const sections = [
 		padding-bottom: var(--section-gap);
 	}
 
+	.hero-stage {
+		position: relative;
+		isolation: isolate;
+	}
+
 	.content-section {
+		position: relative;
+		isolation: isolate;
 		padding-block: clamp(2.75rem, 6vw, 4.5rem);
 		border-top: 1px solid var(--color-border-subtle);
 	}
@@ -83,6 +106,8 @@ const sections = [
 	}
 
 	.section-heading {
+		position: relative;
+		z-index: 1;
 		margin-bottom: var(--space-6);
 		display: flex;
 		align-items: baseline;
@@ -108,6 +133,8 @@ const sections = [
 	}
 
 	.empty-row {
+		position: relative;
+		z-index: 1;
 		padding-block: var(--space-6);
 		border-block: 1px solid var(--color-border-subtle);
 		display: grid;

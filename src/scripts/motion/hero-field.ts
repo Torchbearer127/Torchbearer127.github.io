@@ -15,8 +15,11 @@ interface FieldPath {
 	width: number;
 }
 
+export type FieldVariant = 'hero' | 'section-left' | 'section-right';
+
 interface PathComposition {
 	bucket: 'desktop' | 'narrow';
+	variant: FieldVariant;
 	paths: FieldPath[];
 	junctions: FieldPoint[];
 }
@@ -39,51 +42,104 @@ const createRandom = (seed: number) => {
 const rounded = (value: number) => Number(value.toFixed(5));
 const point = (x: number, y: number): FieldPoint => ({ x: rounded(x), y: rounded(y) });
 
+const getProfile = (variant: FieldVariant, bucket: PathComposition['bucket']) => {
+	if (variant === 'section-right') {
+		return {
+			pathCount: bucket === 'narrow' ? 5 : 9,
+			hubs: [point(0.68, 0.2), point(0.82, 0.5), point(0.92, 0.78)],
+			direction: 1,
+		};
+	}
+	if (variant === 'section-left') {
+		return {
+			pathCount: bucket === 'narrow' ? 4 : 7,
+			hubs: [point(0.08, 0.24), point(0.18, 0.54), point(0.3, 0.8)],
+			direction: -1,
+		};
+	}
+	return bucket === 'narrow'
+		? {
+			pathCount: 12,
+			hubs: [point(0.7, 0.18), point(0.84, 0.47), point(0.68, 0.76)],
+			direction: 1,
+		}
+		: {
+			pathCount: 26,
+			hubs: [
+				point(0.06, 0.25),
+				point(0.15, 0.72),
+				point(0.64, 0.18),
+				point(0.76, 0.42),
+				point(0.69, 0.75),
+				point(0.9, 0.64),
+			],
+			direction: 1,
+		};
+};
+
 export const createPathComposition = (
 	width: number,
 	_height: number,
 	seed = FIELD_SEED,
+	variant: FieldVariant = 'hero',
 ): PathComposition => {
 	const bucket = width < 640 ? 'narrow' : 'desktop';
-	const pathCount = bucket === 'narrow' ? 12 : 24;
-	const random = createRandom(seed + (bucket === 'narrow' ? 31 : 73));
-	const hubs = bucket === 'narrow'
-		? [point(0.72, 0.18), point(0.84, 0.47), point(0.68, 0.76)]
-		: [point(0.7, 0.2), point(0.82, 0.43), point(0.66, 0.67), point(0.86, 0.8)];
+	const profile = getProfile(variant, bucket);
+	const variantSalt = variant === 'hero' ? 73 : variant === 'section-left' ? 149 : 223;
+	const random = createRandom(seed + variantSalt + (bucket === 'narrow' ? 31 : 0));
 	const paths: FieldPath[] = [];
 
-	for (let index = 0; index < pathCount; index += 1) {
-		const hub = hubs[index % hubs.length];
-		const direction = index % 2 === 0 ? 1 : -1;
-		const span = 0.08 + random() * (bucket === 'narrow' ? 0.14 : 0.22);
-		const endX = clamp(hub.x + span * (0.45 + random() * 0.75), 0.52, 1.04);
-		const endY = clamp(hub.y + direction * (0.035 + random() * 0.16), -0.04, 1.04);
-		const start = index < hubs.length
-			? point(hub.x - 0.08 - random() * 0.08, hub.y + (random() - 0.5) * 0.03)
-			: point(hub.x, hub.y);
+	for (let index = 0; index < profile.pathCount; index += 1) {
+		const hub = profile.hubs[index % profile.hubs.length];
+		const verticalDirection = index % 2 === 0 ? 1 : -1;
+		const isLeftHeroHub = variant === 'hero' && hub.x < 0.35;
+		const horizontalDirection = isLeftHeroHub ? -1 : profile.direction;
+		const span = 0.07 + random() * (variant === 'hero' ? 0.2 : 0.14);
+		const startOffset = 0.035 + random() * 0.075;
+		const start = point(
+			hub.x - horizontalDirection * startOffset,
+			hub.y + (random() - 0.5) * 0.035,
+		);
+		const endX = clamp(
+			hub.x + horizontalDirection * span * (0.55 + random() * 0.8),
+			-0.06,
+			1.06,
+		);
+		const endY = clamp(
+			hub.y + verticalDirection * (0.035 + random() * 0.18),
+			-0.06,
+			1.06,
+		);
 		paths.push({
 			start,
-			controlA: point(start.x + span * 0.32, start.y + direction * span * 0.08),
-			controlB: point(endX - span * 0.28, endY - direction * span * 0.06),
+			controlA: point(
+				start.x + horizontalDirection * span * 0.32,
+				start.y + verticalDirection * span * 0.08,
+			),
+			controlB: point(
+				endX - horizontalDirection * span * 0.28,
+				endY - verticalDirection * span * 0.06,
+			),
 			end: point(endX, endY),
-			alpha: rounded(0.24 + random() * 0.5),
+			alpha: rounded((variant === 'hero' ? 0.22 : 0.18) + random() * 0.42),
 			width: rounded(0.45 + random() * 0.55),
 		});
 	}
 
-	return { bucket, paths, junctions: hubs };
+	return { bucket, variant, paths, junctions: profile.hubs };
 };
 
 export const getPathDisplacement = (
 	pathPoint: FieldPoint,
 	pointer: FieldPoint,
 	direction: FieldPoint,
+	maximum = MAX_DISPLACEMENT,
 ): FieldPoint => {
 	const distance = Math.hypot(pathPoint.x - pointer.x, pathPoint.y - pointer.y);
 	if (distance >= POINTER_RADIUS) return { x: 0, y: 0 };
 	const directionLength = Math.hypot(direction.x, direction.y) || 1;
 	const influence = smoothstep(POINTER_RADIUS, 0, distance);
-	const strength = influence * influence * MAX_DISPLACEMENT;
+	const strength = influence * influence * maximum;
 	return {
 		x: direction.x / directionLength * strength,
 		y: direction.y / directionLength * strength,
@@ -95,9 +151,10 @@ const shifted = (
 	pointer: FieldPoint,
 	direction: FieldPoint,
 	enabled: boolean,
+	maximum: number,
 ) => {
 	if (!enabled) return pathPoint;
-	const displacement = getPathDisplacement(pathPoint, pointer, direction);
+	const displacement = getPathDisplacement(pathPoint, pointer, direction, maximum);
 	return { x: pathPoint.x + displacement.x, y: pathPoint.y + displacement.y };
 };
 
@@ -106,20 +163,22 @@ const toCanvasPoint = (fieldPoint: FieldPoint, width: number, height: number) =>
 	y: fieldPoint.y * height,
 });
 
-export const initHeroField = (engine: MotionEngine) => {
-	const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-field]');
-	const hero = canvas?.closest<HTMLElement>('[data-home-hero]');
-	const context = canvas?.getContext('2d');
-	if (!canvas || !hero || !context) return () => {};
+const initField = (canvas: HTMLCanvasElement, engine: MotionEngine) => {
+	const surface = canvas.closest<HTMLElement>('[data-field-surface]');
+	const context = canvas.getContext('2d');
+	if (!surface || !context) return () => {};
 
-	let rect = hero.getBoundingClientRect();
-	let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-	let composition = createPathComposition(rect.width, rect.height);
+	const variant = (canvas.dataset.fieldVariant ?? 'hero') as FieldVariant;
+	const seed = Number.parseInt(canvas.dataset.fieldSeed ?? String(FIELD_SEED), 10);
+	let rect = canvas.getBoundingClientRect();
+	let dpr = 1;
+	let composition = createPathComposition(rect.width, rect.height, seed, variant);
 	let lineColor = '';
 	let nodeColor = '';
 	let visible = true;
 	let needsRender = true;
 	let renderCount = 0;
+	let wasPointerInside = false;
 
 	const readColors = () => {
 		const styles = getComputedStyle(canvas);
@@ -129,14 +188,15 @@ export const initHeroField = (engine: MotionEngine) => {
 		engine.request();
 	};
 	const resize = () => {
-		rect = hero.getBoundingClientRect();
-		dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+		rect = canvas.getBoundingClientRect();
+		if (rect.width <= 0 || rect.height <= 0) return;
+		const pixelBudget = variant === 'hero' ? 2_000_000 : 1_000_000;
+		const budgetDpr = Math.sqrt(pixelBudget / Math.max(1, rect.width * rect.height));
+		dpr = Math.max(0.5, Math.min(window.devicePixelRatio || 1, 1.5, budgetDpr));
 		canvas.width = Math.max(1, Math.round(rect.width * dpr));
 		canvas.height = Math.max(1, Math.round(rect.height * dpr));
-		canvas.style.width = `${rect.width}px`;
-		canvas.style.height = `${rect.height}px`;
-		composition = createPathComposition(rect.width, rect.height);
-		canvas.dataset.fieldDpr = String(dpr);
+		composition = createPathComposition(rect.width, rect.height, seed, variant);
+		canvas.dataset.fieldDpr = dpr.toFixed(3);
 		canvas.dataset.fieldPathCount = String(composition.paths.length);
 		needsRender = true;
 		engine.request();
@@ -151,15 +211,18 @@ export const initHeroField = (engine: MotionEngine) => {
 			x: clamp((((frame.pointer.smoothedX + 1) / 2) * window.innerWidth - rect.left) / width, 0, 1),
 			y: clamp((((frame.pointer.smoothedY + 1) / 2) * window.innerHeight - rect.top) / height, 0, 1),
 		};
-		const direction = { x: frame.pointer.velocityX || frame.pointer.x, y: frame.pointer.velocityY || frame.pointer.y };
-		const dynamic = frame.finePointer && !frame.reducedMotion;
+		const direction = {
+			x: frame.pointer.velocityX || frame.pointer.x,
+			y: frame.pointer.velocityY || frame.pointer.y,
+		};
+		const maximum = Math.min(MAX_DISPLACEMENT, (variant === 'hero' ? 12 : 7) / Math.max(width, height));
 
 		context.lineCap = 'round';
 		for (const path of composition.paths) {
-			const start = toCanvasPoint(shifted(path.start, pointer, direction, allowDisplacement), width, height);
-			const controlA = toCanvasPoint(shifted(path.controlA, pointer, direction, allowDisplacement), width, height);
-			const controlB = toCanvasPoint(shifted(path.controlB, pointer, direction, allowDisplacement), width, height);
-			const end = toCanvasPoint(shifted(path.end, pointer, direction, allowDisplacement), width, height);
+			const start = toCanvasPoint(shifted(path.start, pointer, direction, allowDisplacement, maximum), width, height);
+			const controlA = toCanvasPoint(shifted(path.controlA, pointer, direction, allowDisplacement, maximum), width, height);
+			const controlB = toCanvasPoint(shifted(path.controlB, pointer, direction, allowDisplacement, maximum), width, height);
+			const end = toCanvasPoint(shifted(path.end, pointer, direction, allowDisplacement, maximum), width, height);
 			context.beginPath();
 			context.moveTo(start.x, start.y);
 			context.bezierCurveTo(controlA.x, controlA.y, controlB.x, controlB.y, end.x, end.y);
@@ -171,34 +234,34 @@ export const initHeroField = (engine: MotionEngine) => {
 
 		context.fillStyle = nodeColor;
 		for (const junction of composition.junctions) {
-			const node = toCanvasPoint(shifted(junction, pointer, direction, allowDisplacement), width, height);
-			context.globalAlpha = 0.72;
+			const node = toCanvasPoint(shifted(junction, pointer, direction, allowDisplacement, maximum), width, height);
+			context.globalAlpha = variant === 'hero' ? 0.72 : 0.5;
 			context.beginPath();
-			context.arc(node.x, node.y, 1.35, 0, Math.PI * 2);
+			context.arc(node.x, node.y, variant === 'hero' ? 1.35 : 1.1, 0, Math.PI * 2);
 			context.fill();
 		}
 		context.globalAlpha = 1;
 		renderCount += 1;
 		canvas.dataset.fieldRenderCount = String(renderCount);
-		canvas.dataset.fieldMode = dynamic ? 'dynamic' : 'static';
+		canvas.dataset.fieldMode = frame.finePointer && !frame.reducedMotion ? 'dynamic' : 'static';
 	};
 
 	const resizeObserver = new ResizeObserver(resize);
-	resizeObserver.observe(hero);
+	resizeObserver.observe(surface);
 	const intersectionObserver = new IntersectionObserver(([entry]) => {
 		visible = entry.isIntersecting;
 		if (visible) {
+			resize();
 			needsRender = true;
 			engine.request();
 		}
-	}, { rootMargin: '48px' });
-	intersectionObserver.observe(hero);
+	}, { rootMargin: '64px' });
+	intersectionObserver.observe(surface);
 	const onThemeChange = () => readColors();
 	window.addEventListener('torchbearer:themechange', onThemeChange);
 
 	readColors();
 	resize();
-	let wasPointerInside = false;
 	const unsubscribe = engine.subscribe((frame) => {
 		if (!visible) return false;
 		const pointerInside = frame.pointer.rawX >= rect.left && frame.pointer.rawX <= rect.right &&
@@ -218,5 +281,13 @@ export const initHeroField = (engine: MotionEngine) => {
 		resizeObserver.disconnect();
 		intersectionObserver.disconnect();
 		window.removeEventListener('torchbearer:themechange', onThemeChange);
+	};
+};
+
+export const initPathFields = (engine: MotionEngine) => {
+	const cleanups = [...document.querySelectorAll<HTMLCanvasElement>('[data-path-field]')]
+		.map((canvas) => initField(canvas, engine));
+	return () => {
+		for (const cleanup of cleanups) cleanup();
 	};
 };

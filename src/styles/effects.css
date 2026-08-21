@@ -20,30 +20,49 @@
 	--fx-field-node: rgb(var(--fx-blue-rgb) / 0.56);
 }
 
+[data-path-field] {
+	position: absolute;
+	inset-block: 0;
+	left: 50%;
+	z-index: 0;
+	width: 100vw;
+	height: 100%;
+	transform: translateX(-50%);
+	pointer-events: none !important;
+}
+
 [data-hero-field] {
 	opacity: 0.62;
 }
 
+[data-section-field] {
+	opacity: 0.34;
+}
+
+:root[data-theme="dark"] [data-section-field] {
+	opacity: 0.38;
+}
+
 [data-hero-layer="content"] {
 	transform: translate3d(
-		calc(var(--hero-pointer-x, 0) * 0.65px),
-		calc(var(--hero-pointer-y, 0) * 0.65px),
+		calc(var(--hero-pointer-x, 0) * 0.9px),
+		calc(var(--hero-pointer-y, 0) * 0.9px),
 		0
 	);
 }
 
 [data-hero-layer="ambient"] {
 	transform: translate3d(
-		calc(var(--hero-pointer-x, 0) * 5px),
-		calc(var(--hero-pointer-y, 0) * 4px),
+		calc(var(--hero-pointer-x, 0) * 7px),
+		calc(var(--hero-pointer-y, 0) * 6px),
 		0
-	) rotate(calc(var(--hero-pointer-x, 0) * 0.18deg));
+	) rotate(calc(var(--hero-pointer-x, 0) * 0.24deg));
 }
 
 [data-hero-layer="signal"] {
 	transform: translate3d(
-		calc(var(--hero-pointer-x, 0) * 3px),
-		calc(var(--hero-pointer-y, 0) * 2.5px),
+		calc(var(--hero-pointer-x, 0) * 4.5px),
+		calc(var(--hero-pointer-y, 0) * 4px),
 		0
 	);
 }
@@ -82,15 +101,18 @@
 
 .ember-particle {
 	position: absolute;
-	left: calc(50% - 1.5px);
-	top: calc(50% - 1.5px);
+	left: calc(50% - 2px);
+	top: calc(50% - 2px);
 	z-index: 3;
-	width: 3px;
-	height: 3px;
+	width: 4px;
+	height: 4px;
 	border-radius: 50%;
 	background: var(--fx-ember);
+	box-shadow:
+		0 0 0 1px rgb(var(--fx-ember-rgb) / 0.16),
+		0 0 8px rgb(var(--fx-ember-rgb) / 0.18);
 	pointer-events: none;
-	animation: ember-activation 500ms cubic-bezier(0.16, 1, 0.3, 1) var(--ember-delay) both;
+	animation: ember-activation 480ms cubic-bezier(0.16, 1, 0.3, 1) var(--ember-delay) both;
 }
 
 @supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
@@ -141,7 +163,7 @@
 		transform: translate3d(0, 0, 0) scale(0.7);
 	}
 	18% {
-		opacity: 0.9;
+		opacity: 1;
 	}
 	100% {
 		opacity: 0;
@@ -170,6 +192,10 @@
 }
 
 @media (max-width: 39.999rem) {
+	[data-section-field] {
+		display: none;
+	}
+
 	[data-hero-field] {
 		opacity: 0.3;
 	}

@@ -1,0 +1,18 @@
+---
+interface Props {
+	variant: 'section-left' | 'section-right';
+	seed: number;
+}
+
+const { variant, seed } = Astro.props;
+---
+
+<canvas
+	class="section-field"
+	data-path-field
+	data-section-field
+	data-field-variant={variant}
+	data-field-seed={seed}
+	aria-hidden="true"
+	tabindex="-1"
+></canvas>

@@ -18,10 +18,22 @@ test('path density stays inside the desktop and narrow-screen budgets', () => {
 	const desktop = createPathComposition(832, 472, 127);
 	const narrow = createPathComposition(390, 399, 127);
 
-	assert.ok(desktop.paths.length >= 20 && desktop.paths.length <= 26);
+	assert.equal(desktop.paths.length, 26);
 	assert.ok(narrow.paths.length >= 10 && narrow.paths.length <= 14);
 	assert.equal(desktop.bucket, 'desktop');
 	assert.equal(narrow.bucket, 'narrow');
+});
+
+test('section compositions alternate their visual weight without filling the text lane', () => {
+	const right = createPathComposition(1200, 360, 211, 'section-right');
+	const left = createPathComposition(1200, 360, 337, 'section-left');
+
+	assert.equal(right.paths.length, 9);
+	assert.equal(left.paths.length, 7);
+	assert.ok(right.junctions.every((junction) => junction.x >= 0.64));
+	assert.ok(left.junctions.every((junction) => junction.x <= 0.3));
+	assert.equal(right.variant, 'section-right');
+	assert.equal(left.variant, 'section-left');
 });
 
 test('pointer influence is local and bounded', () => {

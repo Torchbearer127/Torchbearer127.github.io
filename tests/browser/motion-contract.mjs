@@ -81,6 +81,7 @@ await report('Hero extraction preserves visible content and exposes motion hooks
 		const title = document.querySelector('#identity-title');
 		return {
 			hasHero: Boolean(hero),
+			introPattern: hero?.dataset.introPattern,
 			introCount: hero?.querySelectorAll('[data-intro]').length ?? 0,
 			layerCount: hero?.querySelectorAll('[data-hero-layer]').length ?? 0,
 			title: title?.textContent?.trim(),
@@ -89,6 +90,7 @@ await report('Hero extraction preserves visible content and exposes motion hooks
 	})()`);
 	assert.deepEqual(result, {
 		hasHero: true,
+		introPattern: 'signal-reveal',
 		introCount: 5,
 		layerCount: 3,
 		title: '执炬人',
@@ -99,16 +101,33 @@ await report('Hero extraction preserves visible content and exposes motion hooks
 await report('One runtime drives restrained Hero, Header, and specular response then idles', async () => {
 	await load();
 	const targets = await evaluate(`(() => {
+		const hero = document.querySelector('[data-home-hero]').getBoundingClientRect();
 		const nav = document.querySelector('.site-nav a:not([aria-current])');
 		const toggle = document.querySelector('[data-theme-toggle]');
 		const navRect = nav.getBoundingClientRect();
 		const toggleRect = toggle.getBoundingClientRect();
 		return {
+			hero: { x: hero.right - 8, y: hero.top + hero.height / 2 },
 			nav: { x: navRect.x + navRect.width / 2, y: navRect.y + navRect.height / 2 },
 			toggle: { x: toggleRect.x + toggleRect.width / 2, y: toggleRect.y + toggleRect.height / 2 },
 			navWidth: nav.offsetWidth,
 		};
 	})()`);
+
+	await send('Input.dispatchMouseEvent', {
+		type: 'mouseMoved',
+		x: targets.hero.x,
+		y: targets.hero.y,
+		pointerType: 'mouse',
+	});
+	await wait(260);
+	const heroDepth = await evaluate(`(() => {
+		const content = new DOMMatrix(getComputedStyle(document.querySelector('[data-hero-layer="content"]')).transform);
+		const ambient = new DOMMatrix(getComputedStyle(document.querySelector('[data-hero-layer="ambient"]')).transform);
+		return { contentX: Math.abs(content.m41), ambientX: Math.abs(ambient.m41) };
+	})()`);
+	assert.ok(heroDepth.contentX > 0.5 && heroDepth.contentX <= 1.05);
+	assert.ok(heroDepth.ambientX > 4 && heroDepth.ambientX <= 8);
 
 	await send('Input.dispatchMouseEvent', {
 		type: 'mouseMoved',
@@ -183,6 +202,14 @@ await report('Hero field is decorative, DPR-capped, dynamic on fine input, and i
 			pointerEvents: getComputedStyle(canvas).pointerEvents,
 			dpr: Number.parseFloat(canvas.dataset.fieldDpr),
 			pathCount: Number.parseInt(canvas.dataset.fieldPathCount, 10),
+			canvasWidth: canvas.getBoundingClientRect().width,
+			viewportWidth: innerWidth,
+			sectionFields: [...document.querySelectorAll('[data-section-field]')].map((field) => ({
+				zone: field.dataset.fieldVariant,
+				paths: Number.parseInt(field.dataset.fieldPathCount, 10),
+			})),
+			heroOverflow: getComputedStyle(document.querySelector('[data-hero-stage]')).overflowX,
+			sectionOverflow: getComputedStyle(document.querySelector('.content-section')).overflowX,
 			mode: canvas.dataset.fieldMode,
 			renders: Number.parseInt(canvas.dataset.fieldRenderCount, 10),
 			pointer: { x: hero.right - 120, y: hero.top + 170 },
@@ -191,7 +218,15 @@ await report('Hero field is decorative, DPR-capped, dynamic on fine input, and i
 	assert.equal(before.ariaHidden, 'true');
 	assert.equal(before.pointerEvents, 'none');
 	assert.ok(before.dpr <= 1.5);
-	assert.ok(before.pathCount >= 20 && before.pathCount <= 26);
+	assert.equal(before.canvasWidth, before.viewportWidth);
+	assert.equal(before.heroOverflow, 'visible');
+	assert.equal(before.sectionOverflow, 'visible');
+	assert.equal(before.pathCount, 26);
+	assert.deepEqual(before.sectionFields, [
+		{ zone: 'section-right', paths: 9 },
+		{ zone: 'section-left', paths: 7 },
+		{ zone: 'section-right', paths: 9 },
+	]);
 	assert.equal(before.mode, 'dynamic');
 
 	await send('Input.dispatchMouseEvent', {
@@ -243,6 +278,26 @@ await report('Reduced motion renders one static Hero field composition', async (
 	);
 });
 
+await report('Lower-page fields render when their sections enter the viewport', async () => {
+	await load();
+	const before = await evaluate(`(() => {
+		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		return Number.parseInt(field.dataset.fieldRenderCount ?? '0', 10);
+	})()`);
+	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await wait(280);
+	const after = await evaluate(`(() => {
+		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		return {
+			renders: Number.parseInt(field.dataset.fieldRenderCount ?? '0', 10),
+			visibleTop: field.getBoundingClientRect().top,
+			visibleBottom: field.getBoundingClientRect().bottom,
+		};
+	})()`);
+	assert.ok(after.renders > before);
+	assert.ok(after.visibleTop < 900 && after.visibleBottom > 0);
+});
+
 await report('Ember activation is click-only, finite, and reduced-motion safe', async () => {
 	await load();
 	await send('Input.dispatchMouseEvent', {
@@ -254,8 +309,18 @@ await report('Ember activation is click-only, finite, and reduced-motion safe', 
 	await wait(120);
 	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
 	await evaluate(`document.querySelector('[data-ember-burst]').click()`);
-	const particleCount = await evaluate(`document.querySelectorAll('[data-ember-particle]').length`);
-	assert.ok(particleCount >= 3 && particleCount <= 5);
+	const particles = await evaluate(`(() => {
+		const items = [...document.querySelectorAll('[data-ember-particle]')];
+		return {
+			count: items.length,
+			size: items[0] ? getComputedStyle(items[0]).width : null,
+			color: items[0] ? getComputedStyle(items[0]).backgroundColor : null,
+			identityColor: getComputedStyle(document.querySelector('[data-hero-ember]')).backgroundColor,
+		};
+	})()`);
+	assert.equal(particles.count, 5);
+	assert.equal(particles.size, '4px');
+	assert.equal(particles.color, particles.identityColor);
 	await wait(720);
 	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
 
@@ -266,10 +331,10 @@ await report('Ember activation is click-only, finite, and reduced-motion safe', 
 
 await report('Tablet and narrow viewport geometry stays collision-free', async () => {
 	const cases = [
-		{ width: 1024, height: 768, theme: 'light', paths: 24 },
-		{ width: 1024, height: 768, theme: 'dark', paths: 24 },
-		{ width: 768, height: 1024, theme: 'light', paths: 24 },
-		{ width: 768, height: 1024, theme: 'dark', paths: 24 },
+		{ width: 1024, height: 768, theme: 'light', paths: 26 },
+		{ width: 1024, height: 768, theme: 'dark', paths: 26 },
+		{ width: 768, height: 1024, theme: 'light', paths: 26 },
+		{ width: 768, height: 1024, theme: 'dark', paths: 26 },
 		{ width: 320, height: 568, theme: 'light', paths: 12 },
 	];
 	for (const item of cases) {
@@ -314,6 +379,8 @@ await report('Mobile navigation and viewport remain intact', async () => {
 			focusRestored: document.activeElement === toggle,
 			clientWidth: document.documentElement.clientWidth,
 			scrollWidth: document.documentElement.scrollWidth,
+			sectionFieldDisplays: [...document.querySelectorAll('[data-section-field]')]
+				.map((field) => getComputedStyle(field).display),
 		};
 	})()`);
 	assert.deepEqual(result, {
@@ -322,6 +389,7 @@ await report('Mobile navigation and viewport remain intact', async () => {
 		focusRestored: true,
 		clientWidth: 390,
 		scrollWidth: 390,
+		sectionFieldDisplays: ['none', 'none', 'none'],
 	});
 });
 
