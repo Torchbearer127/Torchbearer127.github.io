@@ -38,7 +38,9 @@
 }
 
 :root[data-theme="dark"] [data-hero-field] {
-	--fx-field-line: rgb(var(--fx-starlight-rgb) / 0.36);
+	--fx-field-line: rgb(var(--fx-starlight-rgb) / 0.62);
+	--fx-field-node: rgb(231 243 255 / 0.96);
+	opacity: 0.78;
 }
 
 [data-section-field] {
@@ -47,10 +49,10 @@
 }
 
 :root[data-theme="dark"] [data-section-field] {
-	--fx-field-line: rgb(var(--fx-starlight-rgb) / 0.52);
-	--fx-field-node: rgb(231 243 255 / 0.94);
-	--fx-field-node-glow: rgb(var(--fx-starlight-rgb) / 0.62);
-	opacity: 0.72;
+	--fx-field-line: rgb(var(--fx-starlight-rgb) / 0.76);
+	--fx-field-node: rgb(231 243 255 / 0.98);
+	--fx-field-node-glow: rgb(var(--fx-starlight-rgb) / 0.90);
+	opacity: 0.82;
 }
 
 [data-hero-layer="content"] {
@@ -202,12 +204,19 @@
 }
 
 @media (max-width: 39.999rem) {
-	[data-section-field],
-	:root[data-theme="dark"] [data-section-field] {
+	[data-section-field] {
 		opacity: 0.64;
+	}
+
+	:root[data-theme="dark"] [data-section-field] {
+		opacity: 0.76;
 	}
 
 	[data-hero-field] {
 		opacity: 0.3;
+	}
+
+	:root[data-theme="dark"] [data-hero-field] {
+		opacity: 0.5;
 	}
 }

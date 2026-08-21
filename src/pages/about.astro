@@ -29,7 +29,13 @@ const focusAreas = [
 	},
 ];
 
-const adjacentInterests = ['Penetration Testing', 'Algorithms & Data Structures'];
+const adjacentInterests = [
+	'Penetration Testing',
+	'Algorithms & Data Structures',
+	'Thoughts on Philosophy and Mind',
+	'Essays, Prose, and Creative Writing',
+	'Snowboarding & Fitness',
+];
 ---
 
 <BaseLayout
@@ -65,8 +71,8 @@ const adjacentInterests = ['Penetration Testing', 'Algorithms & Data Structures'
 		</section>
 
 		<section class="adjacent-interests" aria-labelledby="interests-title">
-			<h2 id="interests-title">Adjacent interests</h2>
-			<p>Areas I know well or continue to explore beyond my primary focus.</p>
+			<h2 id="interests-title">Forking Paths</h2>
+			<p>Forking paths of curiosity—from auxiliary crafts to written thoughts and the open snow.</p>
 			<ul>
 				{adjacentInterests.map((interest) => <li>{interest}</li>)}
 			</ul>

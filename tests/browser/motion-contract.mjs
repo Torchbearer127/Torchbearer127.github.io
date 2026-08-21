@@ -30,6 +30,11 @@ const send = (method, params = {}) => new Promise((resolve, reject) => {
 	socket.send(JSON.stringify({ id, method, params }));
 });
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+const colorAlpha = (color) => {
+	if (/^#[\da-f]{8}$/i.test(color)) return Number.parseInt(color.slice(-2), 16) / 255;
+	const functionalAlpha = color.match(/\/\s*(\.?\d+(?:\.\d+)?)\s*\)$/);
+	return functionalAlpha ? Number.parseFloat(functionalAlpha[1]) : 1;
+};
 const evaluate = async (expression) => {
 	const result = await send('Runtime.evaluate', { expression, returnByValue: true });
 	if (result.exceptionDetails) {
@@ -123,10 +128,11 @@ await report('Hero identity title keeps a restrained responsive scale', async ()
 
 await report('Hero path signal remains visible across both themes', async () => {
 	for (const item of [
-		{ theme: 'light', minimumCanvasAlpha: 0.00095, lineAlpha: '.34' },
-		{ theme: 'dark', minimumCanvasAlpha: 0.001, lineAlpha: '.36' },
+		{ theme: 'light', width: 1440, height: 900, paths: 26, minimumCanvasAlpha: 0.00095, minimumLineAlpha: 0.34 },
+		{ theme: 'dark', width: 1440, height: 900, paths: 26, minimumCanvasAlpha: 0.002, minimumLineAlpha: 0.62, minimumNodeAlpha: 0.96 },
+		{ theme: 'dark', width: 390, height: 844, paths: 12, minimumCanvasAlpha: 0.00058, minimumLineAlpha: 0.62, minimumNodeAlpha: 0.96 },
 	]) {
-		await load({ theme: item.theme, reduced: true });
+		await load({ theme: item.theme, width: item.width, height: item.height, reduced: true });
 		const result = await evaluate(`(() => {
 			const field = document.querySelector('[data-hero-field]');
 			const style = getComputedStyle(field);
@@ -140,12 +146,17 @@ await report('Hero path signal remains visible across both themes', async () => 
 			return {
 				paths: Number.parseInt(field.dataset.fieldPathCount ?? '0', 10),
 				line: style.getPropertyValue('--fx-field-line'),
+				node: style.getPropertyValue('--fx-field-node'),
 				effectiveCanvasAlpha: alphaTotal / (pixels.length / 4) / 255 * Number.parseFloat(style.opacity),
 			};
 		})()`);
-		assert.equal(result.paths, 26);
-		assert.ok(result.line.includes(`/ ${item.lineAlpha}`));
-		assert.ok(result.effectiveCanvasAlpha >= item.minimumCanvasAlpha);
+		assert.equal(result.paths, item.paths);
+		assert.ok(colorAlpha(result.line) >= item.minimumLineAlpha);
+		if (item.minimumNodeAlpha) assert.ok(colorAlpha(result.node) >= item.minimumNodeAlpha - 0.005);
+		assert.ok(
+			result.effectiveCanvasAlpha >= item.minimumCanvasAlpha,
+			`${item.theme} ${item.width}x${item.height}: ${result.effectiveCanvasAlpha}`,
+		);
 	}
 });
 
@@ -375,11 +386,15 @@ await report('Dark lower-page paths retain a visible starlight signal', async ()
 		}
 		return {
 			line: style.getPropertyValue('--fx-field-line'),
+			node: style.getPropertyValue('--fx-field-node'),
+			glow: style.getPropertyValue('--fx-field-node-glow'),
 			effectiveCanvasAlpha: alphaTotal / (pixels.length / 4) / 255 * Number.parseFloat(style.opacity),
 		};
 	})()`);
-	assert.ok(result.line.includes('/ .52'));
-	assert.ok(result.effectiveCanvasAlpha >= 0.0005);
+	assert.ok(colorAlpha(result.line) >= 0.76);
+	assert.ok(colorAlpha(result.node) >= 0.975);
+	assert.ok(colorAlpha(result.glow) >= 0.9);
+	assert.ok(result.effectiveCanvasAlpha >= 0.00092);
 });
 
 await report('Dark lower-page junctions render a sparse stellar halo', async () => {
@@ -481,37 +496,47 @@ await report('Tablet and narrow viewport geometry stays collision-free', async (
 });
 
 await report('Mobile retains a low-density lower-page signal field', async () => {
-	await load({ width: 390, height: 844 });
-	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
-	await wait(280);
-	const result = await evaluate(`(() => {
-		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
-		const style = getComputedStyle(field);
-		let alphaTotal = 0;
-		if (field.width > 1 && field.height > 1) {
-			const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
-			for (let index = 3; index < pixels.length; index += 4) {
-				if (pixels[index] > 0) {
-					alphaTotal += pixels[index];
+	for (const item of [
+		{ theme: 'light', minimumCanvasAlpha: 0.00018 },
+		{ theme: 'dark', minimumCanvasAlpha: 0.00046, minimumLineAlpha: 0.76 },
+	]) {
+		await load({ width: 390, height: 844, theme: item.theme });
+		await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+		await wait(280);
+		const result = await evaluate(`(() => {
+			const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+			const style = getComputedStyle(field);
+			let alphaTotal = 0;
+			if (field.width > 1 && field.height > 1) {
+				const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
+				for (let index = 3; index < pixels.length; index += 4) {
+					if (pixels[index] > 0) {
+						alphaTotal += pixels[index];
+					}
 				}
 			}
-		}
-		return {
-			display: style.display,
-			paths: Number.parseInt(field.dataset.fieldPathCount ?? '0', 10),
-			renders: Number.parseInt(field.dataset.fieldRenderCount ?? '0', 10),
-			effectiveCanvasAlpha: alphaTotal === 0
-				? 0
-				: alphaTotal / (field.width * field.height) / 255 * Number.parseFloat(style.opacity),
-			clientWidth: document.documentElement.clientWidth,
-			scrollWidth: document.documentElement.scrollWidth,
-		};
-	})()`);
-	assert.equal(result.display, 'block');
-	assert.equal(result.paths, 5);
-	assert.ok(result.renders > 0);
-	assert.ok(result.effectiveCanvasAlpha >= 0.00018);
-	assert.equal(result.scrollWidth, result.clientWidth);
+			return {
+				display: style.display,
+				line: style.getPropertyValue('--fx-field-line'),
+				paths: Number.parseInt(field.dataset.fieldPathCount ?? '0', 10),
+				renders: Number.parseInt(field.dataset.fieldRenderCount ?? '0', 10),
+				effectiveCanvasAlpha: alphaTotal === 0
+					? 0
+					: alphaTotal / (field.width * field.height) / 255 * Number.parseFloat(style.opacity),
+				clientWidth: document.documentElement.clientWidth,
+				scrollWidth: document.documentElement.scrollWidth,
+			};
+		})()`);
+		assert.equal(result.display, 'block');
+		assert.equal(result.paths, 5);
+		assert.ok(result.renders > 0);
+		if (item.minimumLineAlpha) assert.ok(colorAlpha(result.line) >= item.minimumLineAlpha);
+		assert.ok(
+			result.effectiveCanvasAlpha >= item.minimumCanvasAlpha,
+			`${item.theme} mobile section: ${result.effectiveCanvasAlpha}`,
+		);
+		assert.equal(result.scrollWidth, result.clientWidth);
+	}
 });
 
 await report('Mobile navigation and viewport remain intact', async () => {
