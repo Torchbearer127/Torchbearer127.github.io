@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const sections = [
+	{
+		id: 'current-focus',
+		title: 'Current Focus',
+		description: 'A concise view of active research directions will appear here as they become ready to share.',
+	},
+	{
+		id: 'selected-work',
+		title: 'Selected Work',
+		description: 'Selected research, engineering work, tools, and reproductions will be documented here.',
+	},
+	{
+		id: 'publications',
+		title: 'Publications',
+		description: 'Publications will be listed here with links to papers, code, and artifacts where available.',
+	},
+];
+---
+
+<BaseLayout
+	title="Work — 执炬人"
+	description="执炬人的研究方向、工程工作与公开成果概览。"
+>
+	<div class="page-shell">
+		<header class="page-intro">
+			<p class="page-eyebrow">Research & engineering</p>
+			<h1 class="page-title">Work</h1>
+			<p class="page-description">
+				Current directions, selected work, and publications across agent systems and cyberspace security.
+			</p>
+		</header>
+
+		<div class="work-sections">
+			{sections.map((section) => (
+				<section class="work-section" aria-labelledby={section.id}>
+					<h2 id={section.id}>{section.title}</h2>
+					<p>{section.description}</p>
+				</section>
+			))}
+		</div>
+	</div>
+</BaseLayout>
+
+<style>
+	.work-sections {
+		max-width: var(--layout-prose-max);
+		margin-top: clamp(3.5rem, 8vw, 5.5rem);
+		border-top: 1px solid var(--color-border-subtle);
+	}
+
+	.work-section {
+		padding-block: clamp(1.75rem, 4vw, 2.5rem);
+		border-bottom: 1px solid var(--color-border-subtle);
+		display: grid;
+		gap: var(--space-3);
+	}
+
+	.work-section h2,
+	.work-section p {
+		margin: 0;
+	}
+
+	.work-section h2 {
+		font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+		font-weight: 680;
+		letter-spacing: -0.02em;
+	}
+
+	.work-section p {
+		max-width: 38rem;
+		color: var(--color-text-muted);
+	}
+</style>

@@ -4,9 +4,8 @@ import ThemeToggle from './ThemeToggle.astro';
 const pathname = Astro.url.pathname;
 const currentPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
 const navigation = [
+	{ href: '/work', label: 'Work' },
 	{ href: '/writing', label: 'Writing' },
-	{ href: '/notes', label: 'Notes' },
-	{ href: '/projects', label: 'Projects' },
 	{ href: '/about', label: 'About' },
 ];
 ---
@@ -18,11 +17,11 @@ const navigation = [
 			<span>执炬人</span>
 		</a>
 
-		<nav class="site-nav" id="primary-navigation" aria-label="Primary" data-header-proximity>
+		<nav class="site-nav" id="primary-navigation" aria-label="Primary">
 			<ul>
 				{navigation.map(({ href, label }) => (
 					<li>
-						<a href={href} aria-current={currentPath === href ? 'page' : undefined} data-proximity>
+						<a href={href} aria-current={currentPath === href ? 'page' : undefined}>
 							{label}
 						</a>
 					</li>
@@ -208,12 +207,8 @@ const navigation = [
 	}
 
 	.site-nav a[aria-current="page"] {
-		color: var(--color-text-strong);
-		font-weight: 650;
-	}
-
-	:global(:root[data-theme="light"]) .site-nav a[aria-current="page"] {
 		color: var(--color-accent);
+		font-weight: 650;
 	}
 
 	.site-nav a[aria-current="page"]::after {
@@ -223,7 +218,7 @@ const navigation = [
 		bottom: 0.25rem;
 		width: 1.5rem;
 		height: 2px;
-		background: var(--color-ember);
+		background: var(--color-accent);
 	}
 
 	.nav-toggle:active {

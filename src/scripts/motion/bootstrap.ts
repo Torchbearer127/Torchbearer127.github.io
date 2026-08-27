@@ -1,5 +1,3 @@
-import { initEmber } from './ember.ts';
-import { initHeaderProximity } from './header-proximity.ts';
 import { initPathFields } from './hero-field.ts';
 import { initHeroMotion } from './hero-motion.ts';
 import { MotionEngine } from './motion-engine.ts';
@@ -37,10 +35,8 @@ reducedMotion.addEventListener('change', syncCapabilities);
 finePointer.addEventListener('change', syncCapabilities);
 
 const cleanups = [
-	initEmber(),
 	initHeroMotion(engine),
 	initPathFields(engine),
-	initHeaderProximity(engine),
 	initSpecular(engine),
 ];
 

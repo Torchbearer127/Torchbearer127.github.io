@@ -27,6 +27,7 @@
 	left: 50%;
 	z-index: 0;
 	width: 100vw;
+	width: 100cqw;
 	height: 100%;
 	transform: translateX(-50%);
 	pointer-events: none !important;
@@ -111,22 +112,6 @@
 	--spec-strength: 0;
 }
 
-.ember-particle {
-	position: absolute;
-	left: calc(50% - 2px);
-	top: calc(50% - 2px);
-	z-index: 3;
-	width: 4px;
-	height: 4px;
-	border-radius: 50%;
-	background: var(--fx-ember);
-	box-shadow:
-		0 0 0 1px rgb(var(--fx-ember-rgb) / 0.16),
-		0 0 8px rgb(var(--fx-ember-rgb) / 0.18);
-	pointer-events: none;
-	animation: ember-activation 620ms cubic-bezier(0.16, 1, 0.3, 1) var(--ember-delay) both;
-}
-
 @supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
 	[data-specular]::after {
 		content: "";
@@ -169,20 +154,6 @@
 	}
 }
 
-@keyframes ember-activation {
-	0% {
-		opacity: 0;
-		transform: translate3d(0, 0, 0) scale(0.7);
-	}
-	18% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-		transform: translate3d(var(--ember-x), var(--ember-y), 0) scale(0.2);
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 	[data-hero-layer],
 	[data-proximity] {
@@ -190,11 +161,6 @@
 	}
 
 	[data-hero-ember] {
-		animation: none !important;
-	}
-
-	.ember-particle {
-		display: none !important;
 		animation: none !important;
 	}
 

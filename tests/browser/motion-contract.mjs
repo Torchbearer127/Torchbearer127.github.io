@@ -160,19 +160,15 @@ await report('Hero path signal remains visible across both themes', async () => 
 	}
 });
 
-await report('One runtime drives restrained Hero, Header, and specular response then idles', async () => {
+await report('One runtime drives restrained Hero and specular response then idles', async () => {
 	await load();
 	const targets = await evaluate(`(() => {
 		const hero = document.querySelector('[data-home-hero]').getBoundingClientRect();
-		const nav = document.querySelector('.site-nav a:not([aria-current])');
 		const toggle = document.querySelector('[data-theme-toggle]');
-		const navRect = nav.getBoundingClientRect();
 		const toggleRect = toggle.getBoundingClientRect();
 		return {
 			hero: { x: hero.right - 8, y: hero.top + hero.height / 2 },
-			nav: { x: navRect.x + navRect.width / 2, y: navRect.y + navRect.height / 2 },
 			toggle: { x: toggleRect.x + toggleRect.width / 2, y: toggleRect.y + toggleRect.height / 2 },
-			navWidth: nav.offsetWidth,
 		};
 	})()`);
 
@@ -190,26 +186,6 @@ await report('One runtime drives restrained Hero, Header, and specular response 
 	})()`);
 	assert.ok(heroDepth.contentX > 0.5 && heroDepth.contentX <= 1.05);
 	assert.ok(heroDepth.ambientX > 4 && heroDepth.ambientX <= 8);
-
-	await send('Input.dispatchMouseEvent', {
-		type: 'mouseMoved',
-		x: targets.nav.x,
-		y: targets.nav.y,
-		pointerType: 'mouse',
-	});
-	await wait(180);
-	const navState = await evaluate(`(() => {
-		const nav = document.querySelector('.site-nav a:not([aria-current])');
-		return {
-			engine: document.documentElement.dataset.motionState,
-			proximity: Number.parseFloat(getComputedStyle(nav).getPropertyValue('--proximity')),
-			transform: getComputedStyle(nav).transform,
-			width: nav.offsetWidth,
-		};
-	})()`);
-	assert.equal(navState.width, targets.navWidth);
-	assert.ok(navState.proximity > 0.6);
-	assert.notEqual(navState.transform, 'none');
 
 	await send('Input.dispatchMouseEvent', {
 		type: 'mouseMoved',
@@ -265,7 +241,7 @@ await report('Hero field is decorative, DPR-capped, dynamic on fine input, and i
 			dpr: Number.parseFloat(canvas.dataset.fieldDpr),
 			pathCount: Number.parseInt(canvas.dataset.fieldPathCount, 10),
 			canvasWidth: canvas.getBoundingClientRect().width,
-			viewportWidth: innerWidth,
+			viewportWidth: document.documentElement.clientWidth,
 			sectionFields: [...document.querySelectorAll('[data-section-field]')].map((field) => ({
 				zone: field.dataset.fieldVariant,
 				paths: Number.parseInt(field.dataset.fieldPathCount, 10),
@@ -287,7 +263,6 @@ await report('Hero field is decorative, DPR-capped, dynamic on fine input, and i
 	assert.deepEqual(before.sectionFields, [
 		{ zone: 'section-right', paths: 9 },
 		{ zone: 'section-left', paths: 7 },
-		{ zone: 'section-right', paths: 9 },
 	]);
 	assert.equal(before.mode, 'dynamic');
 
@@ -343,13 +318,13 @@ await report('Reduced motion renders one static Hero field composition', async (
 await report('Lower-page fields render when their sections enter the viewport', async () => {
 	await load();
 	const before = await evaluate(`(() => {
-		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const field = document.querySelector('[data-field-variant="section-left"][data-field-seed="337"]');
 		return Number.parseInt(field.dataset.fieldRenderCount ?? '0', 10);
 	})()`);
-	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await evaluate(`document.querySelector('#latest-writing').scrollIntoView({ block: 'center' })`);
 	await wait(280);
 	const after = await evaluate(`(() => {
-		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const field = document.querySelector('[data-field-variant="section-left"][data-field-seed="337"]');
 		const style = getComputedStyle(field);
 		const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
 		let alphaTotal = 0;
@@ -370,12 +345,12 @@ await report('Lower-page fields render when their sections enter the viewport', 
 	assert.ok(after.effectiveCanvasAlpha >= 0.00035);
 });
 
-await report('Dark lower-page paths retain a visible starlight signal', async () => {
+	await report('Dark lower-page paths retain a visible starlight signal', async () => {
 	await load({ theme: 'dark' });
-	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await evaluate(`document.querySelector('#latest-writing').scrollIntoView({ block: 'center' })`);
 	await wait(280);
 	const result = await evaluate(`(() => {
-		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const field = document.querySelector('[data-field-variant="section-left"][data-field-seed="337"]');
 		const style = getComputedStyle(field);
 		const pixels = field.getContext('2d').getImageData(0, 0, field.width, field.height).data;
 		let alphaTotal = 0;
@@ -399,11 +374,11 @@ await report('Dark lower-page paths retain a visible starlight signal', async ()
 
 await report('Dark lower-page junctions render a sparse stellar halo', async () => {
 	const inspectHub = async () => evaluate(`(() => {
-		const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+		const field = document.querySelector('[data-field-variant="section-left"][data-field-seed="337"]');
 		const context = field.getContext('2d');
 		const patchSize = 21;
-		const x = Math.round(field.width * 0.68 - patchSize / 2);
-		const y = Math.round(field.height * 0.2 - patchSize / 2);
+		const x = Math.round(field.width * 0.08 - patchSize / 2);
+		const y = Math.round(field.height * 0.24 - patchSize / 2);
 		const pixels = context.getImageData(x, y, patchSize, patchSize).data;
 		let litPixels = 0;
 		for (let index = 3; index < pixels.length; index += 4) {
@@ -413,49 +388,16 @@ await report('Dark lower-page junctions render a sparse stellar halo', async () 
 	})()`);
 
 	await load({ theme: 'light' });
-	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await evaluate(`document.querySelector('#latest-writing').scrollIntoView({ block: 'center' })`);
 	await wait(280);
 	const lightHubPixels = await inspectHub();
 
 	await load({ theme: 'dark' });
-	await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+	await evaluate(`document.querySelector('#latest-writing').scrollIntoView({ block: 'center' })`);
 	await wait(280);
 	const darkHubPixels = await inspectHub();
 
 	assert.ok(darkHubPixels >= lightHubPixels + 20);
-});
-
-await report('Ember activation is click-only, finite, and reduced-motion safe', async () => {
-	await load();
-	await send('Input.dispatchMouseEvent', {
-		type: 'mouseMoved',
-		x: 1230,
-		y: 32,
-		pointerType: 'mouse',
-	});
-	await wait(120);
-	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
-	await evaluate(`document.querySelector('[data-ember-burst]').click()`);
-	const particles = await evaluate(`(() => {
-		const items = [...document.querySelectorAll('[data-ember-particle]')];
-		return {
-			count: items.length,
-			size: items[0] ? getComputedStyle(items[0]).width : null,
-			duration: items[0] ? getComputedStyle(items[0]).animationDuration : null,
-			color: items[0] ? getComputedStyle(items[0]).backgroundColor : null,
-			identityColor: getComputedStyle(document.querySelector('[data-hero-ember]')).backgroundColor,
-		};
-	})()`);
-	assert.equal(particles.count, 5);
-	assert.equal(particles.size, '4px');
-	assert.equal(particles.duration, '0.62s');
-	assert.equal(particles.color, particles.identityColor);
-	await wait(720);
-	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
-
-	await load({ reduced: true });
-	await evaluate(`document.querySelector('[data-ember-burst]').click()`);
-	assert.equal(await evaluate(`document.querySelectorAll('[data-ember-particle]').length`), 0);
 });
 
 await report('Tablet and narrow viewport geometry stays collision-free', async () => {
@@ -501,10 +443,10 @@ await report('Mobile retains a low-density lower-page signal field', async () =>
 		{ theme: 'dark', minimumCanvasAlpha: 0.00046, minimumLineAlpha: 0.76 },
 	]) {
 		await load({ width: 390, height: 844, theme: item.theme });
-		await evaluate(`document.querySelector('#selected-projects').scrollIntoView({ block: 'center' })`);
+		await evaluate(`document.querySelector('#latest-writing').scrollIntoView({ block: 'center' })`);
 		await wait(280);
 		const result = await evaluate(`(() => {
-			const field = document.querySelector('[data-field-variant="section-right"][data-field-seed="463"]');
+			const field = document.querySelector('[data-field-variant="section-left"][data-field-seed="337"]');
 			const style = getComputedStyle(field);
 			let alphaTotal = 0;
 			if (field.width > 1 && field.height > 1) {
@@ -528,7 +470,7 @@ await report('Mobile retains a low-density lower-page signal field', async () =>
 			};
 		})()`);
 		assert.equal(result.display, 'block');
-		assert.equal(result.paths, 5);
+		assert.equal(result.paths, 4);
 		assert.ok(result.renders > 0);
 		if (item.minimumLineAlpha) assert.ok(colorAlpha(result.line) >= item.minimumLineAlpha);
 		assert.ok(
@@ -562,7 +504,7 @@ await report('Mobile navigation and viewport remain intact', async () => {
 		focusRestored: true,
 		clientWidth: 390,
 		scrollWidth: 390,
-		sectionFieldDisplays: ['block', 'block', 'block'],
+		sectionFieldDisplays: ['block', 'block'],
 	});
 });
 

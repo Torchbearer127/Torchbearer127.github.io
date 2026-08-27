@@ -43,7 +43,7 @@ const adjacentInterests = [
 	description="关于执炬人 / Torchbearer127 在 Agent 系统、网络空间安全、AI4Sec 与 Agent Security 方向的工作。"
 >
 	<div class="page-shell">
-		<header class="page-intro">
+		<header class="page-intro" id="identity">
 			<p class="page-eyebrow">Identity</p>
 			<h1 class="page-title">About</h1>
 			<p class="page-description">
@@ -52,7 +52,7 @@ const adjacentInterests = [
 		</header>
 
 		<section class="research-focus" id="research" aria-labelledby="research-title">
-			<h2 id="research-title">Research focus</h2>
+			<h2 id="research-title">Research Interests</h2>
 			<p class="research-intro">
 				Agent systems and cyberspace security are the two primary axes of my work. AI4Sec
 				and agent security are where these directions intersect.
@@ -77,12 +77,28 @@ const adjacentInterests = [
 				{adjacentInterests.map((interest) => <li>{interest}</li>)}
 			</ul>
 		</section>
+
+		<section class="about-section" id="gallery" aria-labelledby="gallery-title">
+			<h2 id="gallery-title">Gallery</h2>
+			<p>A curated selection of personal moments will appear here when it is ready.</p>
+		</section>
+
+		<section class="about-section" id="hall-of-fame" aria-labelledby="hall-of-fame-title">
+			<h2 id="hall-of-fame-title">Hall of Fame</h2>
+			<p>Selected milestones and acknowledgements will be documented here without turning this page into a résumé.</p>
+		</section>
+
+		<section class="about-section" id="elsewhere" aria-labelledby="elsewhere-title">
+			<h2 id="elsewhere-title">Elsewhere</h2>
+			<p><a href="https://github.com/Torchbearer127" rel="me">GitHub <span aria-hidden="true">→</span></a></p>
+		</section>
 	</div>
 </BaseLayout>
 
 <style>
 	.research-focus,
-	.adjacent-interests {
+	.adjacent-interests,
+	.about-section {
 		max-width: var(--layout-prose-max);
 		margin-top: clamp(3.5rem, 8vw, 5.5rem);
 		padding-top: var(--space-8);
@@ -90,7 +106,8 @@ const adjacentInterests = [
 	}
 
 	.research-focus h2,
-	.adjacent-interests h2 {
+	.adjacent-interests h2,
+	.about-section h2 {
 		margin: 0 0 var(--space-4);
 		font-size: clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem);
 		font-weight: 680;
@@ -98,10 +115,21 @@ const adjacentInterests = [
 	}
 
 	.research-intro,
-	.adjacent-interests > p {
+	.adjacent-interests > p,
+	.about-section > p {
 		max-width: 38rem;
 		margin: 0;
 		color: var(--color-text-muted);
+	}
+
+	.about-section a {
+		color: var(--color-accent);
+	}
+
+	@media (hover: hover) {
+		.about-section a:hover {
+			color: var(--color-accent-hover);
+		}
 	}
 
 	.focus-groups,
