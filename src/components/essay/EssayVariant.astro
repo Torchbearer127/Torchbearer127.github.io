@@ -1,0 +1,54 @@
+---
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import type { SupportedLocale } from '../../i18n/locales.ts';
+import type { WritingEntity } from '../../lib/writing.ts';
+import EssayToc from './EssayToc.astro';
+
+interface Heading {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface Props {
+	entity: WritingEntity;
+	locale: SupportedLocale;
+	Content: AstroComponentFactory;
+	headings: Heading[];
+	active: boolean;
+}
+
+const { entity, locale, Content, headings, active } = Astro.props;
+const variant = entity.variants[locale]!;
+---
+
+<section
+	class="essay-variant"
+	data-essay-variant={locale}
+	data-title={variant.title}
+	data-description={variant.description}
+	hidden={!active}
+	aria-hidden={active ? 'false' : 'true'}
+>
+	<p class="content-fallback-notice" data-content-fallback-notice hidden></p>
+	<div class="essay-mobile-tools">
+		<EssayToc headings={headings} locale={locale} title={variant.title} mobile />
+	</div>
+	<div class="essay-grid">
+		<EssayToc headings={headings} locale={locale} title={variant.title} />
+		<section class="article-paper">
+			<article class="essay-article" data-essay-article lang={locale}>
+				<header class="essay-article__header">
+					<h1>{variant.title}</h1>
+					<p class="essay-article__meta">
+						<span class="essay-article__author">执炬人 / <span translate="no">Torchbearer127</span></span><br />
+						<span>{variant.description}</span><br />
+						<time datetime={entity.data.date.toISOString()}>{entity.data.dateLabel ?? entity.data.date.getFullYear()}</time>
+					</p>
+				</header>
+				<Content />
+			</article>
+		</section>
+		<div class="essay-right-rail" aria-hidden="true"></div>
+	</div>
+</section>

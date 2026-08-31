@@ -8,12 +8,13 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "test": "node --test tests/motion/*.test.mjs tests/ia/*.test.mjs",
-    "test:browser": "node tests/browser/motion-contract.mjs",
+		"test": "node --test tests/motion/*.test.mjs tests/ia/*.test.mjs tests/i18n/*.test.mjs tests/writing/*.test.mjs",
+		"test:browser": "node tests/browser/motion-contract.mjs && node tests/browser/multilingual-essay.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/mdx": "^7.0.8",
     "astro": "^7.2.1"
   }
 }

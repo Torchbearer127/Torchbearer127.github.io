@@ -1,0 +1,44 @@
+---
+import LocalizedText from '../LocalizedText.astro';
+
+interface Heading {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface Props {
+	headings: Heading[];
+	locale: string;
+	title: string;
+	mobile?: boolean;
+}
+
+const { headings, locale, title, mobile = false } = Astro.props;
+const sectionHeadings = headings.filter(({ depth }) => depth === 2);
+---
+
+{sectionHeadings.length > 2 ? (
+	mobile ? (
+		<details class="mobile-contents" data-mobile-contents>
+			<summary><LocalizedText key="essay.contents" /></summary>
+			<nav aria-label="Article contents" data-i18n-aria-label="essay.contents">
+				{sectionHeadings.map((heading) => (
+					<a href={`#${heading.slug}`} data-toc-link data-heading-slug={heading.slug}>{heading.text}</a>
+				))}
+			</nav>
+		</details>
+	) : (
+		<aside class="essay-contents" aria-label="Article contents" data-i18n-aria-label="essay.contents">
+			<div class="essay-contents__title" lang={locale}>{title}</div>
+			<div class="essay-contents__label"><LocalizedText key="essay.contents" /></div>
+			<nav>
+				{sectionHeadings.map((heading) => (
+					<a class="essay-contents__link" href={`#${heading.slug}`} data-toc-link data-heading-slug={heading.slug}>
+						{heading.text}
+					</a>
+				))}
+			</nav>
+		</aside>
+	)
+) : mobile ? null : <div class="essay-contents essay-contents--empty" aria-hidden="true"></div>}

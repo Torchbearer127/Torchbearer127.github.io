@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import LocalizedContent from '../components/LocalizedContent.astro';
 ---
 
 <BaseLayout
@@ -8,12 +9,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
 	<div class="page-shell">
 		<header class="page-intro">
-			<p class="page-eyebrow">Compatibility route</p>
-			<h1 class="page-title">Projects</h1>
-			<p class="page-description">Projects now belong to the broader Work overview.</p>
+			<p class="page-eyebrow"><LocalizedContent id="projects-route-label" values={{ en: 'Compatibility route', 'zh-CN': '兼容入口', de: 'Kompatibilitätsroute' }} /></p>
+			<h1 class="page-title"><LocalizedContent id="projects-route-title" values={{ en: 'Projects', 'zh-CN': '项目', de: 'Projekte' }} /></h1>
+			<p class="page-description"><LocalizedContent id="projects-route-description" values={{ en: 'Projects now belong to the broader Work overview.', 'zh-CN': '项目现已归入更完整的工作概览。', de: 'Projekte gehören nun zum umfassenderen Arbeitsüberblick.' }} /></p>
 		</header>
 		<div class="archive-empty">
-			<p><a href="/work">Continue to Work <span aria-hidden="true">→</span></a></p>
+			<p><a href="/work"><LocalizedContent id="projects-route-link" values={{ en: 'Continue to Work', 'zh-CN': '前往工作', de: 'Weiter zur Arbeit' }} /> <span aria-hidden="true">→</span></a></p>
 		</div>
 	</div>
 </BaseLayout>

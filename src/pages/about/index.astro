@@ -1,69 +1,36 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
-const focusAreas = [
-	{
-		id: 'agent-systems',
-		title: 'Agent Systems & Engineering',
-		items: [
-			'Agent Harnesses',
-			'Tool Use and Orchestration',
-			'Context and Evaluation',
-			'Reliable Agent Workflows',
-		],
-	},
-	{
-		id: 'software-security',
-		title: 'Software Security',
-		items: ['Vulnerability Discovery', 'Program Analysis', 'Exploitability Validation'],
-	},
-	{
-		id: 'ai4sec',
-		title: 'AI4Sec & Agent Security — The Intersection',
-		items: [
-			'Agent Security',
-			'AI-assisted Program Analysis',
-			'Automated Vulnerability Reasoning',
-			'Closed-loop Validation',
-		],
-	},
-];
-
-const adjacentInterests = [
-	'Penetration Testing',
-	'Algorithms & Data Structures',
-	'Thoughts on Philosophy and Mind',
-	'Essays, Prose, and Creative Writing',
-	'Snowboarding & Fitness',
-];
+import LocalizedContent from '../../components/LocalizedContent.astro';
+import { aboutContent } from '../../data/site-content.ts';
 ---
 
 <BaseLayout
-	title="About — 执炬人"
-	description="关于执炬人 / Torchbearer127 在 Agent 系统、网络空间安全、AI4Sec 与 Agent Security 方向的工作。"
+	title="About — Torchbearer127"
+	description="About Torchbearer127 and work across agent systems, cyberspace security, AI4Sec, and agent security."
+	localizedTitle={{ 'zh-CN': '关于 — 执炬人', de: 'Über mich — Torchbearer127' }}
+	localizedDescription={{ 'zh-CN': '关于执炬人 / Torchbearer127 在智能体系统、网络空间安全、AI4Sec 与智能体安全方向的工作。', de: 'Über Torchbearer127 und die Arbeit an Agentensystemen, Cyberspace-Sicherheit, AI4Sec und Agentensicherheit.' }}
 >
 	<div class="page-shell about-hub">
 		<header class="page-intro" id="identity">
-			<p class="page-eyebrow">Identity</p>
-			<h1 class="page-title">About</h1>
+			<p class="page-eyebrow"><LocalizedContent id="about-eyebrow" values={aboutContent.eyebrow} /></p>
+			<h1 class="page-title"><LocalizedContent id="about-title" values={aboutContent.title} /></h1>
 			<p class="page-description">
-				A brief orientation to my work across agent systems and cyberspace security.
+				<LocalizedContent id="about-description" values={aboutContent.description} />
 			</p>
 		</header>
 
 		<section class="research-focus" id="research" aria-labelledby="research-title">
-			<h2 id="research-title">Research Interests</h2>
+			<h2 id="research-title"><LocalizedContent id="about-research-title" values={aboutContent.researchTitle} /></h2>
 			<p class="section-intro">
-				Agent systems and cyberspace security are the two primary axes of my work. AI4Sec
-				and agent security are where these directions intersect.
+				<LocalizedContent id="about-research-intro" values={aboutContent.researchIntro} />
 			</p>
 
 			<div class="focus-groups">
-				{focusAreas.map((area) => (
+				{aboutContent.focusAreas.map((area) => (
 					<section class="focus-group" aria-labelledby={area.id}>
-						<h3 id={area.id}>{area.title}</h3>
+						<h3 id={area.id}><LocalizedContent id={`about-${area.id}-title`} values={area.title} /></h3>
 						<ul>
-							{area.items.map((item) => <li>{item}</li>)}
+							{area.items.map((item, index) => <li><LocalizedContent id={`about-${area.id}-item-${index}`} values={item} /></li>)}
 						</ul>
 					</section>
 				))}
@@ -71,34 +38,34 @@ const adjacentInterests = [
 		</section>
 
 		<section class="adjacent-interests" aria-labelledby="interests-title">
-			<h2 id="interests-title">Forking Paths</h2>
-			<p class="section-intro">Forking paths of curiosity—from auxiliary crafts to written thoughts and the open snow.</p>
+			<h2 id="interests-title"><LocalizedContent id="about-paths-title" values={aboutContent.pathsTitle} /></h2>
+			<p class="section-intro"><LocalizedContent id="about-paths-intro" values={aboutContent.pathsIntro} /></p>
 			<ul>
-				{adjacentInterests.map((interest) => <li>{interest}</li>)}
+				{aboutContent.paths.map((interest, index) => <li><LocalizedContent id={`about-path-${index}`} values={interest} /></li>)}
 			</ul>
 		</section>
 
 		<section class="about-preview about-preview--gallery" id="gallery" aria-labelledby="gallery-title">
 			<div class="about-preview__heading">
-				<h2 id="gallery-title">Gallery</h2>
-				<a href="/about/gallery">Explore Gallery <span aria-hidden="true">→</span></a>
+				<h2 id="gallery-title"><LocalizedContent id="about-gallery-title" values={aboutContent.galleryTitle} /></h2>
+				<a href="/about/gallery"><LocalizedContent id="about-gallery-explore" values={aboutContent.galleryExplore} /> <span aria-hidden="true">→</span></a>
 			</div>
 			<div class="gallery-preview" aria-hidden="true">
 				<span></span><span></span><span></span>
 			</div>
-			<p>A curated collection of personal moments.</p>
+			<p><LocalizedContent id="about-gallery-description" values={aboutContent.galleryDescription} /></p>
 		</section>
 
 		<section class="about-preview about-preview--hall" id="hall-of-fame" aria-labelledby="hall-of-fame-title">
 			<div class="about-preview__heading">
-				<h2 id="hall-of-fame-title">Hall of Fame</h2>
-				<a href="/about/hall-of-fame">View Hall <span aria-hidden="true">→</span></a>
+				<h2 id="hall-of-fame-title"><LocalizedContent id="about-hall-title" values={aboutContent.hallTitle} /></h2>
+				<a href="/about/hall-of-fame"><LocalizedContent id="about-hall-explore" values={aboutContent.hallExplore} /> <span aria-hidden="true">→</span></a>
 			</div>
-			<p class="milestone-preview">Selected milestones worth keeping on the wall.</p>
+			<p class="milestone-preview"><LocalizedContent id="about-hall-description" values={aboutContent.hallDescription} /></p>
 		</section>
 
 		<section class="elsewhere" id="elsewhere" aria-labelledby="elsewhere-title">
-			<h2 id="elsewhere-title">Elsewhere</h2>
+			<h2 id="elsewhere-title"><LocalizedContent id="about-elsewhere" values={aboutContent.elsewhere} /></h2>
 			<p><a href="https://github.com/Torchbearer127" rel="me">GitHub <span aria-hidden="true">→</span></a></p>
 		</section>
 	</div>

@@ -1,43 +1,29 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-const sections = [
-	{
-		id: 'current-focus',
-		title: 'Current Focus',
-		description: 'A concise view of active research directions will appear here as they become ready to share.',
-	},
-	{
-		id: 'selected-work',
-		title: 'Selected Work',
-		description: 'Selected research, engineering work, tools, and reproductions will be documented here.',
-	},
-	{
-		id: 'publications',
-		title: 'Publications',
-		description: 'Publications will be listed here with links to papers, code, and artifacts where available.',
-	},
-];
+import LocalizedContent from '../components/LocalizedContent.astro';
+import { workContent } from '../data/site-content.ts';
 ---
 
 <BaseLayout
 	title="Work — 执炬人"
-	description="执炬人的研究方向、工程工作与公开成果概览。"
+	description="Current directions, selected work, and publications by Torchbearer127."
+	localizedTitle={{ 'zh-CN': '工作 — 执炬人', de: 'Arbeit — Torchbearer127' }}
+	localizedDescription={{ 'zh-CN': '执炬人的研究方向、工程工作与公开成果概览。', de: 'Aktuelle Richtungen, ausgewählte Arbeiten und Publikationen von Torchbearer127.' }}
 >
 	<div class="page-shell">
 		<header class="page-intro">
-			<p class="page-eyebrow">Research & engineering</p>
-			<h1 class="page-title">Work</h1>
+			<p class="page-eyebrow"><LocalizedContent id="work-eyebrow" values={workContent.eyebrow} /></p>
+			<h1 class="page-title"><LocalizedContent id="work-title" values={workContent.title} /></h1>
 			<p class="page-description">
-				Current directions, selected work, and publications across agent systems and cyberspace security.
+				<LocalizedContent id="work-description" values={workContent.description} />
 			</p>
 		</header>
 
 		<div class="work-sections">
-			{sections.map((section) => (
+			{workContent.sections.map((section) => (
 				<section class="work-section" aria-labelledby={section.id}>
-					<h2 id={section.id}>{section.title}</h2>
-					<p>{section.description}</p>
+					<h2 id={section.id}><LocalizedContent id={`work-${section.id}-title`} values={section.title} /></h2>
+					<p><LocalizedContent id={`work-${section.id}-description`} values={section.description} /></p>
 				</section>
 			))}
 		</div>

@@ -1,28 +1,30 @@
 ---
-import type { WritingEntry, WritingType } from '../../lib/writing';
+import type { WritingEntity, WritingType } from '../../lib/writing';
+import LocalizedText from '../LocalizedText.astro';
 import WritingList from './WritingList.astro';
 
 interface Props {
 	title: string;
 	description: string;
 	type: WritingType;
-	entries: WritingEntry[];
+	entries: WritingEntity[];
 }
 
 const { title, description, type, entries } = Astro.props;
 const years = [...new Set(entries.map((entry) => entry.data.date.getFullYear()))];
-const emptyMessage = type === 'research-note'
-	? 'No research notes have been published yet.'
-	: 'No essays have been published yet.';
+const labelKey = type === 'research-note' ? 'writing.notes.label' : 'writing.essays.label';
+const titleKey = type === 'research-note' ? 'writing.notes.title' : 'writing.essays.title';
+const descriptionKey = type === 'research-note' ? 'writing.notes.description' : 'writing.essays.description';
+const emptyKey = type === 'research-note' ? 'writing.notes.empty' : 'writing.essays.empty';
 ---
 
 <div class:list={['page-shell', 'writing-collection', `writing-collection--${type}`]}>
-	<a class="context-link" href="/writing"><span aria-hidden="true">←</span> Writing</a>
+	<a class="context-link" href="/writing"><span aria-hidden="true">←</span> <LocalizedText key="common.backWriting" /></a>
 
 	<header class="page-intro">
-		<p class="page-eyebrow">{type === 'research-note' ? 'Technical archive' : 'Long-form reflections'}</p>
-		<h1 class="page-title">{title}</h1>
-		<p class="page-description">{description}</p>
+		<p class="page-eyebrow"><LocalizedText key={labelKey} /></p>
+		<h1 class="page-title"><LocalizedText key={titleKey} /></h1>
+		<p class="page-description"><LocalizedText key={descriptionKey} /></p>
 	</header>
 
 	{entries.length ? (
@@ -36,7 +38,7 @@ const emptyMessage = type === 'research-note'
 		</div>
 	) : (
 		<div class="archive-empty">
-			<p>{emptyMessage}</p>
+			<p><LocalizedText key={emptyKey} /></p>
 		</div>
 	)}
 </div>

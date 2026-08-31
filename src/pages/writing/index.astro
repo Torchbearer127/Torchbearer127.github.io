@@ -1,5 +1,6 @@
 ---
 import WritingList from '../../components/writing/WritingList.astro';
+import LocalizedText from '../../components/LocalizedText.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPublishedWriting } from '../../lib/writing';
 
@@ -8,15 +9,17 @@ const essays = await getPublishedWriting({ type: 'essay', limit: 3 });
 ---
 
 <BaseLayout
-	title="Writing — 执炬人"
-	description="执炬人的研究笔记、技术写作与随笔入口。"
+	title="Writing — Torchbearer127"
+	description="Research notes, technical writing, and essays by Torchbearer127."
+	localizedTitle={{ 'zh-CN': '写作 — 执炬人', de: 'Texte — Torchbearer127' }}
+	localizedDescription={{ 'zh-CN': '执炬人的研究笔记、技术写作与随笔入口。', de: 'Forschungsnotizen, technische Texte und Essays von Torchbearer127.' }}
 >
 	<div class="page-shell writing-hub">
 		<header class="page-intro">
-			<p class="page-eyebrow">Research notes & essays</p>
-			<h1 class="page-title">Writing</h1>
+			<p class="page-eyebrow"><LocalizedText key="writing.eyebrow" /></p>
+			<h1 class="page-title"><LocalizedText key="writing.title" /></h1>
 			<p class="page-description">
-				Research notes, technical writing, and essays on research and methodology.
+				<LocalizedText key="writing.description" />
 			</p>
 		</header>
 
@@ -24,36 +27,36 @@ const essays = await getPublishedWriting({ type: 'essay', limit: 3 });
 			<section class="writing-portal writing-portal--notes" aria-labelledby="research-notes-title">
 				<div class="writing-portal__heading">
 					<div>
-						<p class="writing-portal__label">Technical records</p>
-						<h2 id="research-notes-title">Research Notes</h2>
+						<p class="writing-portal__label"><LocalizedText key="writing.notes.label" /></p>
+						<h2 id="research-notes-title"><LocalizedText key="writing.notes.title" /></h2>
 					</div>
-					<a href="/writing/research-notes">Explore Research Notes <span aria-hidden="true">→</span></a>
+					<a href="/writing/research-notes"><LocalizedText key="writing.notes.explore" /> <span aria-hidden="true">→</span></a>
 				</div>
 				<p class="writing-portal__description">
-					Fragments from papers, experiments, implementations, and software security research.
+					<LocalizedText key="writing.notes.description" />
 				</p>
 				{researchNotes.length ? (
 					<WritingList entries={researchNotes} variant="research-note" />
 				) : (
-					<div class="portal-empty"><p>No research notes have been published yet.</p></div>
+					<div class="portal-empty"><p><LocalizedText key="writing.notes.empty" /></p></div>
 				)}
 			</section>
 
 			<section class="writing-portal writing-portal--essays" aria-labelledby="essays-title">
 				<div class="writing-portal__heading">
 					<div>
-						<p class="writing-portal__label">Long-form reflections</p>
-						<h2 id="essays-title">Essays</h2>
+						<p class="writing-portal__label"><LocalizedText key="writing.essays.label" /></p>
+						<h2 id="essays-title"><LocalizedText key="writing.essays.title" /></h2>
 					</div>
-					<a href="/writing/essays">Explore Essays <span aria-hidden="true">→</span></a>
+					<a href="/writing/essays"><LocalizedText key="writing.essays.explore" /> <span aria-hidden="true">→</span></a>
 				</div>
 				<p class="writing-portal__description">
-					Long-form reflections on research, engineering, methodology, tools, and thinking.
+					<LocalizedText key="writing.essays.description" />
 				</p>
 				{essays.length ? (
 					<WritingList entries={essays} variant="essay" />
 				) : (
-					<div class="portal-empty"><p>No essays have been published yet.</p></div>
+					<div class="portal-empty"><p><LocalizedText key="writing.essays.empty" /></p></div>
 				)}
 			</section>
 		</div>

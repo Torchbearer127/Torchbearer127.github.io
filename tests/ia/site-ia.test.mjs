@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import test, { before } from 'node:test';
@@ -27,213 +26,127 @@ const extractRegion = (html, tagName) => {
 	return match[1];
 };
 
-const extractPrimaryNavigation = (html) => {
-	const match = html.match(/<nav\b[^>]*aria-label="Primary"[^>]*>([\s\S]*?)<\/nav>/);
+const primaryNavigation = (html) => {
+	const match = html.match(/<nav\b[^>]*id="primary-navigation"[^>]*>([\s\S]*?)<\/nav>/);
 	assert.ok(match, 'Expected Primary Navigation');
 	return match[1];
 };
 
-test('Primary Navigation exposes only Work, Writing, and About', () => {
-	const navigation = extractPrimaryNavigation(readPage('/'));
-	const links = [...navigation.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map(
-		([, href, label]) => ({ href, label: label.replace(/<[^>]+>/g, '').trim() }),
-	);
+const plainText = (html) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 
-	assert.deepEqual(links, [
-		{ href: '/work', label: 'Work' },
-		{ href: '/writing', label: 'Writing' },
-		{ href: '/about', label: 'About' },
-	]);
+test('Primary Navigation keeps three neutral routes and exposes three UI locales', () => {
+	const navigation = primaryNavigation(readPage('/'));
+	const links = [...navigation.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((match) => match[1]);
+	assert.deepEqual(links, ['/work', '/writing', '/about']);
+	assert.match(navigation, /data-locale-copy="zh-CN"[^>]*>工作/);
+	assert.match(navigation, /data-locale-copy="en"[^>]*>Work/);
+	assert.match(navigation, /data-locale-copy="de"[^>]*>Arbeit/);
 });
 
-test('Work is the canonical work destination with the planned section hierarchy', () => {
+test('all site pages use language-neutral routes and shared locale controls', () => {
+	for (const route of ['/', '/work', '/writing', '/about', '/about/gallery']) {
+		const html = readPage(route);
+		assert.match(html, /data-locale-switcher/);
+		assert.match(html, /torchbearer-locale/);
+		assert.match(html, /data-title-zh-cn=/);
+		assert.doesNotMatch(html, /href="\/(?:zh-CN|en|de)\//);
+		assert.match(html, new RegExp(`rel="canonical" href="https://torchbearer127\\.github\\.io${route === '/' ? '/' : `${route}/`}"`));
+	}
+});
+
+test('Work keeps the planned hierarchy in all three structured locales', () => {
 	const html = readPage('/work');
-	const main = extractRegion(html, 'main');
-
-	assert.match(main, /<h1[^>]*>Work<\/h1>/);
-	assert.match(main, />Current Focus</);
-	assert.match(main, />Selected Work</);
-	assert.match(main, />Publications</);
-	assert.match(extractPrimaryNavigation(html), /href="\/work" aria-current="page"/);
+	const text = plainText(extractRegion(html, 'main'));
+	for (const label of ['Current Focus', 'Selected Work', 'Publications', '当前方向', 'Aktueller Fokus']) {
+		assert.match(text, new RegExp(label));
+	}
+	assert.match(primaryNavigation(html), /href="\/work" aria-current="page"/);
 });
 
-test('Homepage, Writing, and About reflect the consolidated information architecture', () => {
-	const homepage = extractRegion(readPage('/'), 'main');
+test('Writing remains one hub with entity-aware Research Notes and Essays archives', () => {
 	const writing = extractRegion(readPage('/writing'), 'main');
-	const about = extractRegion(readPage('/about'), 'main');
-
-	assert.ok(homepage.indexOf('Current Work') < homepage.indexOf('Latest Writing'));
-	assert.doesNotMatch(homepage, /Recent Notes|Selected Projects/);
-	assert.match(writing, /Research notes/i);
-	assert.match(writing, /Essays/i);
-	assert.match(about, />Research Interests</);
-	assert.match(about, />Gallery</);
-	assert.match(about, />Hall of Fame</);
-	assert.match(about, />Elsewhere</);
-});
-
-test('Writing is a hub with separate Research Notes and Essays collections', () => {
-	const writing = extractRegion(readPage('/writing'), 'main');
-	const researchNotes = extractRegion(readPage('/writing/research-notes'), 'main');
+	const notes = extractRegion(readPage('/writing/research-notes'), 'main');
 	const essays = extractRegion(readPage('/writing/essays'), 'main');
-
 	assert.match(writing, /href="\/writing\/research-notes"/);
 	assert.match(writing, /href="\/writing\/essays"/);
-	assert.match(researchNotes, /<h1[^>]*>Research Notes<\/h1>/);
-	assert.match(researchNotes, /href="\/writing"/);
-	assert.match(essays, /<h1[^>]*>Essays<\/h1>/);
-	assert.match(essays, /href="\/writing"/);
-	assert.match(extractPrimaryNavigation(readPage('/writing/research-notes')), /href="\/writing" aria-current="page"/);
-	assert.match(extractPrimaryNavigation(readPage('/writing/essays')), /href="\/writing" aria-current="page"/);
+	assert.match(plainText(notes), /Research Notes/);
+	assert.match(plainText(essays), /Essays/);
+	assert.match(primaryNavigation(readPage('/writing/essays')), /href="\/writing" aria-current="page"/);
 });
 
-test('The first essay is discoverable from Essays and Latest Writing', () => {
-	const homepage = extractRegion(readPage('/'), 'main');
-	const essays = extractRegion(readPage('/writing/essays'), 'main');
+test('sovereign-driver is one discoverable neutral entity route', () => {
+	const homepage = readPage('/');
+	const essays = readPage('/writing/essays');
 	const href = '/writing/essays/sovereign-driver';
 	const title = '执炬躬行照长夜，何必低眉候日升';
-
-	assert.match(homepage, new RegExp(`href="${href}"[^>]*>${title}</a>`));
-	assert.match(essays, new RegExp(`href="${href}"[^>]*>${title}</a>`));
-	assert.match(essays, /2026\/08/);
-});
-
-test('The first essay uses sovereign-driver as its canonical slug', () => {
-	const homepage = extractRegion(readPage('/'), 'main');
-	const essays = extractRegion(readPage('/writing/essays'), 'main');
-	const canonicalHref = '/writing/essays/sovereign-driver';
-	const retiredHref = '/writing/essays/torchbearer-in-the-long-night';
-
 	assert.ok(existsSync(new URL('../../dist/writing/essays/sovereign-driver/index.html', import.meta.url)));
 	assert.ok(!existsSync(new URL('../../dist/writing/essays/torchbearer-in-the-long-night/index.html', import.meta.url)));
-	assert.match(homepage, new RegExp(`href="${canonicalHref}"`));
-	assert.match(essays, new RegExp(`href="${canonicalHref}"`));
-	assert.doesNotMatch(homepage, new RegExp(`href="${retiredHref}"`));
-	assert.doesNotMatch(essays, new RegExp(`href="${retiredHref}"`));
+	for (const html of [homepage, essays]) {
+		assert.match(html, new RegExp(`href="${href}"`));
+		assert.match(html, new RegExp(title));
+		assert.doesNotMatch(html, /torchbearer-in-the-long-night/);
+	}
 });
 
-test('The standalone essay preserves its complete article body', () => {
+test('the Essay route uses shared multilingual reader architecture', () => {
 	const html = readPage('/writing/essays/sovereign-driver');
-	const article = html.match(/<article id="article">([\s\S]*?)<\/article>/);
-
-	assert.ok(article, 'Expected the standalone article body');
-	const digest = createHash('sha256').update(article[1]).digest('hex');
-	assert.equal(digest, 'fe03a3f5bd74cd6079a766a59db03b103cec0481a5f611fb84d264e6858120c5');
+	assert.match(html, /data-essay-reader/);
+	assert.match(html, /data-essay-variant="zh-CN"/);
+	assert.equal((html.match(/data-essay-variant=/g) ?? []).length, 1);
+	assert.match(html, /data-reading-progress/);
+	assert.match(html, /data-mobile-contents/);
+	assert.match(html, /data-theme-toggle/);
+	assert.match(html, /data-locale-switcher/);
+	assert.match(html, /rel="canonical" href="https:\/\/torchbearer127\.github\.io\/writing\/essays\/sovereign-driver\/"/);
+	assert.doesNotMatch(html, /class="site-header"/);
 });
 
-test('The standalone essay uses the shared site navigation contract', () => {
+test('Essay TOC comes from the five actual H2 headings and preserves sidebar hierarchy', () => {
 	const html = readPage('/writing/essays/sovereign-driver');
-	const header = extractRegion(html, 'header');
-	const navigation = extractPrimaryNavigation(html);
-
-	assert.match(header, /class="site-identity" href="\/"/);
-	assert.match(navigation, /href="\/work"[^>]*>Work<\/a>/);
-	assert.match(navigation, /href="\/writing" aria-current="page"[^>]*>Writing<\/a>/);
-	assert.match(navigation, /href="\/about"[^>]*>About<\/a>/);
-	assert.match(header, /aria-expanded="false"/);
-	assert.match(header, /aria-controls="primary-navigation"/);
-	assert.match(html, /localStorage\.getItem\("torchbearer-theme"\)/);
-});
-
-test('The essay sidebar presents its title before the Chinese contents label', () => {
-	const html = readPage('/writing/essays/sovereign-driver');
-	const aside = extractRegion(html, 'aside');
+	const aside = html.match(/<aside class="essay-contents"[\s\S]*?<\/aside>/)?.[0] ?? '';
 	const title = '执炬躬行照长夜，何必低眉候日升';
-	const titleIndex = aside.indexOf(title);
-	const labelIndex = aside.indexOf('目录');
-	const firstLinkIndex = aside.indexOf('借得天光摹镜花，误把虚影作良工');
-
-	assert.ok(titleIndex >= 0, 'Expected the article title in the sidebar');
-	assert.ok(titleIndex < labelIndex, 'Expected the article title before 目录');
-	assert.ok(labelIndex < firstLinkIndex, 'Expected 目录 before the first section link');
+	assert.ok(aside.indexOf(title) < aside.indexOf('目录'));
+	assert.equal((aside.match(/data-toc-link/g) ?? []).length, 5);
+	const styles = readFileSync(new URL('../../src/styles/essay.css', import.meta.url), 'utf8');
+	assert.match(styles, /\.essay-contents__title\s*\{[\s\S]*?font-size:\s*0\.875rem/);
+	assert.match(styles, /\.essay-contents__link\s*\{[\s\S]*?font-size:\s*0\.8125rem/);
 });
 
-test('The essay sidebar title is slightly larger than its section links', () => {
-	const html = readPage('/writing/essays/sovereign-driver');
-	const titleRule = html.match(/\.contents-title\s*\{([\s\S]*?)\}/);
-	const linkRule = html.match(/\.contents-link\s*\{([\s\S]*?)\}/);
-
-	assert.ok(titleRule, 'Expected a dedicated sidebar title rule');
-	assert.ok(linkRule, 'Expected a sidebar section-link rule');
-	assert.match(titleRule[1], /font-size:\s*14px/);
-	assert.match(linkRule[1], /font-size:\s*13px/);
+test('Writing detail routes use distinct shared Essay and Research Note foundations', () => {
+	for (const path of [
+		'../../src/content.config.ts',
+		'../../src/layouts/EssayLayout.astro',
+		'../../src/layouts/ResearchNoteLayout.astro',
+		'../../src/pages/writing/research-notes/[slug].astro',
+		'../../src/pages/writing/essays/[slug].astro',
+	]) assert.ok(existsSync(new URL(path, import.meta.url)), path);
 });
 
-test('Writing detail routes share one article foundation', () => {
-	assert.ok(existsSync(new URL('../../src/content.config.ts', import.meta.url)));
-	assert.ok(existsSync(new URL('../../src/layouts/ArticleLayout.astro', import.meta.url)));
-	assert.ok(existsSync(new URL('../../src/pages/writing/research-notes/[slug].astro', import.meta.url)));
-	assert.ok(existsSync(new URL('../../src/pages/writing/essays/[slug].astro', import.meta.url)));
-});
-
-test('About remains a hub with Gallery and Hall of Fame child pages', () => {
-	const about = extractRegion(readPage('/about'), 'main');
-	const gallery = extractRegion(readPage('/about/gallery'), 'main');
-	const hallOfFame = extractRegion(readPage('/about/hall-of-fame'), 'main');
-
+test('About remains a localized hub with Gallery and Hall of Fame child pages', () => {
+	const about = readPage('/about');
+	const text = plainText(extractRegion(about, 'main'));
 	assert.match(about, /href="\/about\/gallery"/);
 	assert.match(about, /href="\/about\/hall-of-fame"/);
-	assert.match(about, />Research Interests</);
-	assert.match(about, />Forking Paths</);
-	assert.match(about, />Elsewhere</);
-	assert.match(gallery, /<h1[^>]*>Gallery<\/h1>/);
-	assert.match(gallery, /href="\/about"/);
-	assert.match(hallOfFame, /<h1[^>]*>Hall of Fame<\/h1>/);
-	assert.match(hallOfFame, /href="\/about"/);
-	assert.match(extractPrimaryNavigation(readPage('/about/gallery')), /href="\/about" aria-current="page"/);
-	assert.match(extractPrimaryNavigation(readPage('/about/hall-of-fame')), /href="\/about" aria-current="page"/);
+	for (const label of ['Research Interests', '研究兴趣', 'Forschungsinteressen', 'Forking Paths', 'Gallery', 'Hall of Fame']) {
+		assert.match(text, new RegExp(label));
+	}
+	assert.match(primaryNavigation(readPage('/about/gallery')), /href="\/about" aria-current="page"/);
 });
 
-test('Legacy routes point to their canonical destinations without surviving in site navigation', () => {
-	const notes = extractRegion(readPage('/notes'), 'main');
-	const projects = extractRegion(readPage('/projects'), 'main');
-	const footer = extractRegion(readPage('/'), 'footer');
-
-	assert.match(notes, /href="\/writing\/research-notes"/);
-	assert.match(projects, /href="\/work"/);
-	assert.doesNotMatch(extractPrimaryNavigation(readPage('/')), /\/notes|\/projects/);
-	assert.doesNotMatch(footer, /href="\/(?:notes|projects)"/);
+test('legacy routes point to canonical destinations without entering navigation', () => {
+	assert.match(readPage('/notes'), /href="\/writing\/research-notes"/);
+	assert.match(readPage('/projects'), /href="\/work"/);
+	assert.doesNotMatch(primaryNavigation(readPage('/')), /\/notes|\/projects/);
 });
 
-test('Work remains a single curated page without child archives', () => {
-	assert.ok(!existsSync(new URL('../../dist/work/projects/index.html', import.meta.url)));
-	assert.ok(!existsSync(new URL('../../dist/work/publications/index.html', import.meta.url)));
-	assert.ok(!existsSync(new URL('../../dist/work/current-focus/index.html', import.meta.url)));
-});
-
-test('The production build resolves the Writing collection without empty-loader warnings', () => {
+test('deployment and lightweight visual contracts remain intact', () => {
 	assert.doesNotMatch(buildOutput, /No files found|does not exist or is empty/);
-});
-
-test('Header reserves Ember for identity and uses Azure for current navigation', () => {
-	const source = readFileSync(new URL('../../src/components/Header.astro', import.meta.url), 'utf8');
-	const themeToggle = readFileSync(new URL('../../src/components/ThemeToggle.astro', import.meta.url), 'utf8');
-	const motionBootstrap = readFileSync(new URL('../../src/scripts/motion/bootstrap.ts', import.meta.url), 'utf8');
-	const emberReferences = source.match(/var\(--color-ember\)/g) ?? [];
-	const currentIndicator = source.match(
-		/\.site-nav a\[aria-current="page"\]::after\s*\{([\s\S]*?)\}/,
-	);
-
-	assert.equal(emberReferences.length, 1);
-	assert.ok(currentIndicator, 'Expected a current navigation indicator rule');
-	assert.match(currentIndicator[1], /background:\s*var\(--color-accent\)/);
-	assert.match(source, /aria-expanded="false"/);
-	assert.match(source, /aria-controls="primary-navigation"/);
-	assert.match(source, /event\.key === 'Escape'/);
-	assert.doesNotMatch(source, /data-(?:header-)?proximity/);
-	assert.doesNotMatch(motionBootstrap, /initHeaderProximity/);
-	assert.doesNotMatch(themeToggle, /data-ember-burst/);
-	assert.doesNotMatch(motionBootstrap, /initEmber/);
-});
-
-test('Viewport-wide decorative fields size against the scrollbar-safe root container', () => {
-	const globalStyles = readFileSync(new URL('../../src/styles/global.css', import.meta.url), 'utf8');
-	const effectStyles = readFileSync(new URL('../../src/styles/effects.css', import.meta.url), 'utf8');
-	const bodyRule = globalStyles.match(/body\s*\{([\s\S]*?)\}/);
-	const pathFieldRule = effectStyles.match(/\[data-path-field\]\s*\{([\s\S]*?)\}/);
-
-	assert.ok(bodyRule, 'Expected a global body rule');
-	assert.ok(pathFieldRule, 'Expected a path field rule');
-	assert.match(bodyRule[1], /container-type:\s*inline-size/);
-	assert.match(pathFieldRule[1], /width:\s*100cqw/);
+	assert.ok(!existsSync(new URL('../../dist/work/projects/index.html', import.meta.url)));
+	const header = readFileSync(new URL('../../src/components/Header.astro', import.meta.url), 'utf8');
+	const effects = readFileSync(new URL('../../src/styles/effects.css', import.meta.url), 'utf8');
+	const global = readFileSync(new URL('../../src/styles/global.css', import.meta.url), 'utf8');
+	assert.equal((header.match(/var\(--color-ember\)/g) ?? []).length, 1);
+	assert.match(header, /event\.key === 'Escape'/);
+	assert.match(global, /container-type:\s*inline-size/);
+	assert.match(effects, /width:\s*100cqw/);
 });

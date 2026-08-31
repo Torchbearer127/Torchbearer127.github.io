@@ -1,0 +1,109 @@
+---
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import LocalizedText from '../components/LocalizedText.astro';
+import type { SupportedLocale } from '../i18n/locales.ts';
+import {
+	formatWritingDate,
+	resolveWritingVariant,
+	type WritingEntity,
+} from '../lib/writing.ts';
+import BaseLayout from './BaseLayout.astro';
+
+interface RenderedVariant {
+	locale: SupportedLocale;
+	Content: AstroComponentFactory;
+}
+
+interface Props {
+	entity: WritingEntity;
+	variants: RenderedVariant[];
+}
+
+const { entity, variants } = Astro.props;
+const defaultVariant = resolveWritingVariant(entity, 'en');
+---
+
+<BaseLayout title={`${defaultVariant.title} — 执炬人`} description={defaultVariant.description}>
+	<article
+		class="research-note-shell"
+		data-content-group={entity.id}
+		data-available-locales={entity.availableLocales.join(',')}
+		data-original-locale={entity.originalLocale}
+		data-content-locale={defaultVariant.locale}
+	>
+		<a class="context-link" href="/writing/research-notes"><span aria-hidden="true">←</span> <LocalizedText key="common.backNotes" /></a>
+		<p class="research-note-fallback" data-content-fallback hidden></p>
+		{variants.map((variant) => {
+			const localized = entity.variants[variant.locale]!;
+			return (
+				<section data-content-copy={variant.locale} hidden={variant.locale !== defaultVariant.locale} lang={variant.locale}>
+					<header class="research-note-header">
+						<div class="research-note-meta">
+							<LocalizedText key="note.type" />
+							<time datetime={entity.data.date.toISOString()}>{formatWritingDate(entity.data.date)}</time>
+						</div>
+						<h1>{localized.title}</h1>
+						<p>{localized.description}</p>
+					</header>
+					<div class="prose research-note-body"><variant.Content /></div>
+				</section>
+			);
+		})}
+	</article>
+</BaseLayout>
+
+<style>
+	.research-note-shell {
+		width: min(100%, var(--layout-page-max));
+		margin-inline: auto;
+		padding: clamp(3rem, 7vw, 5.5rem) var(--layout-gutter) var(--section-gap);
+	}
+
+	.research-note-fallback {
+		max-width: var(--layout-prose-max);
+		padding: var(--space-3) var(--space-4);
+		border-left: 3px solid var(--color-ember);
+		background: var(--color-ember-soft);
+		color: var(--color-text-muted);
+		font-size: 0.8125rem;
+	}
+
+	.research-note-header {
+		max-width: var(--layout-prose-max);
+		margin-top: var(--space-8);
+		padding-bottom: clamp(2.5rem, 6vw, 4rem);
+		border-bottom: 1px solid var(--color-border-subtle);
+		display: grid;
+		gap: var(--space-5);
+	}
+
+	.research-note-meta {
+		display: flex;
+		gap: var(--space-5);
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.055em;
+		text-transform: uppercase;
+	}
+
+	.research-note-header h1,
+	.research-note-header p {
+		margin: 0;
+	}
+
+	.research-note-header h1 {
+		font-size: clamp(2.35rem, 1.75rem + 3vw, 4.5rem);
+		line-height: 1.06;
+	}
+
+	.research-note-header > p {
+		color: var(--color-text-muted);
+		font-size: 1.125rem;
+	}
+
+	.research-note-body {
+		margin-top: clamp(3rem, 7vw, 5rem);
+	}
+</style>

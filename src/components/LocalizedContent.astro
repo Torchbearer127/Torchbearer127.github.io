@@ -1,0 +1,29 @@
+---
+import type { LocalizedString } from '../i18n/content.ts';
+import { resolveContentLocale, SUPPORTED_LOCALES, type SupportedLocale } from '../i18n/locales.ts';
+
+interface Props {
+	id: string;
+	values: LocalizedString;
+	original?: SupportedLocale;
+}
+
+const { id, values, original = 'en' } = Astro.props;
+const available = SUPPORTED_LOCALES.filter((locale) => Boolean(values[locale]));
+const defaultLocale = resolveContentLocale('en', available, original);
+---
+
+<span
+	class="localized-content"
+	data-content-group={id}
+	data-available-locales={available.join(',')}
+	data-original-locale={original}
+	data-content-locale={defaultLocale}
+	data-ui-localized
+>
+	{available.map((locale) => (
+		<span data-content-copy={locale} lang={locale} hidden={locale !== defaultLocale}>
+			{values[locale]}
+		</span>
+	))}
+</span>

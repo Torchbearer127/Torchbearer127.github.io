@@ -1,12 +1,20 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import type { SupportedLocale } from '../i18n/locales.ts';
+import {
+	assembleWritingEntities,
+	getWritingHref,
+	getWritingSlug,
+	resolveWritingVariant,
+} from './writing-entities.ts';
+import type {
+	WritingEntity as BaseWritingEntity,
+	WritingType,
+} from './writing-types.ts';
 
 export type WritingEntry = CollectionEntry<'writing'>;
-export type WritingType = WritingEntry['data']['type'];
-
-const routeRoots: Record<WritingType, string> = {
-	'research-note': 'research-notes',
-	essay: 'essays',
-};
+export type WritingEntity = BaseWritingEntity<WritingEntry>;
+export type { WritingType } from './writing-types.ts';
+export { getWritingHref, getWritingSlug, resolveWritingVariant };
 
 export const writingTypeLabels: Record<WritingType, string> = {
 	'research-note': 'Research Note',
@@ -22,46 +30,26 @@ export const noteKindLabels = {
 	'case-study': 'Case Study',
 } as const;
 
-export function compareWritingEntries(a: WritingEntry, b: WritingEntry) {
-	const dateDifference = b.data.date.getTime() - a.data.date.getTime();
-	if (dateDifference !== 0) return dateDifference;
-	return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-}
-
-export function getWritingSlug(entry: WritingEntry) {
-	const prefix = `${routeRoots[entry.data.type]}/`;
-	if (!entry.id.startsWith(prefix)) {
-		throw new Error(`Writing entry "${entry.id}" must live under "${prefix}".`);
-	}
-
-	const slug = entry.id.slice(prefix.length);
-	if (!slug || slug.includes('/')) {
-		throw new Error(`Writing entry "${entry.id}" must use a single-segment slug.`);
-	}
-
-	return slug;
-}
-
-export function getWritingHref(entry: WritingEntry) {
-	return `/writing/${routeRoots[entry.data.type]}/${getWritingSlug(entry)}`;
-}
-
 interface WritingQuery {
 	type?: WritingType;
 	limit?: number;
 }
 
-export async function getPublishedWriting({ type, limit }: WritingQuery = {}) {
-	const entries = await getCollection('writing', ({ data }) => {
-		return !data.draft && (!type || data.type === type);
-	});
-	const sortedEntries = entries.sort(compareWritingEntries);
-
-	return typeof limit === 'number' ? sortedEntries.slice(0, limit) : sortedEntries;
+export async function getWritingEntities() {
+	const entries = await getCollection('writing');
+	return assembleWritingEntities(entries) as WritingEntity[];
 }
 
-export function formatWritingDate(date: Date) {
-	return new Intl.DateTimeFormat('en', {
+export async function getPublishedWriting({ type, limit }: WritingQuery = {}) {
+	const entities = (await getWritingEntities()).filter((entity) => {
+		return !entity.data.draft && (!type || entity.type === type);
+	});
+
+	return typeof limit === 'number' ? entities.slice(0, limit) : entities;
+}
+
+export function formatWritingDate(date: Date, locale: SupportedLocale = 'en') {
+	return new Intl.DateTimeFormat(locale, {
 		year: 'numeric',
 		month: 'short',
 		day: '2-digit',

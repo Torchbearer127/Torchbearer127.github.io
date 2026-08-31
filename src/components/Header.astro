@@ -1,12 +1,14 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import LocalizedText from './LocalizedText.astro';
 
 const pathname = Astro.url.pathname;
 const currentPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
 const navigation = [
-	{ href: '/work', label: 'Work' },
-	{ href: '/writing', label: 'Writing' },
-	{ href: '/about', label: 'About' },
+	{ href: '/work', key: 'nav.work' as const },
+	{ href: '/writing', key: 'nav.writing' as const },
+	{ href: '/about', key: 'nav.about' as const },
 ];
 const isCurrentDestination = (href: string) => currentPath === href || currentPath.startsWith(`${href}/`);
 ---
@@ -18,12 +20,12 @@ const isCurrentDestination = (href: string) => currentPath === href || currentPa
 			<span>执炬人</span>
 		</a>
 
-		<nav class="site-nav" id="primary-navigation" aria-label="Primary">
+		<nav class="site-nav" id="primary-navigation" aria-label="Primary navigation" data-i18n-aria-label="nav.primary">
 			<ul>
-				{navigation.map(({ href, label }) => (
+				{navigation.map(({ href, key }) => (
 					<li>
 						<a href={href} aria-current={isCurrentDestination(href) ? 'page' : undefined}>
-							{label}
+							<LocalizedText key={key} />
 						</a>
 					</li>
 				))}
@@ -31,6 +33,7 @@ const isCurrentDestination = (href: string) => currentPath === href || currentPa
 		</nav>
 
 		<div class="site-controls">
+			<LanguageSwitcher />
 			<ThemeToggle />
 			<button
 				class="nav-toggle"
@@ -38,7 +41,8 @@ const isCurrentDestination = (href: string) => currentPath === href || currentPa
 				data-nav-toggle
 				aria-expanded="false"
 				aria-controls="primary-navigation"
-				aria-label="打开主导航"
+				aria-label="Open main navigation"
+				data-i18n-aria-label="nav.open"
 			>
 				<svg viewBox="0 0 24 24" aria-hidden="true">
 					<path class="nav-toggle__line nav-toggle__line--top" d="M5 8h14" />
@@ -50,6 +54,9 @@ const isCurrentDestination = (href: string) => currentPath === href || currentPa
 </header>
 
 <script>
+	import { isSupportedLocale } from '../i18n/locales.ts';
+	import { message } from '../i18n/messages.ts';
+
 	const navToggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
 	const navPanel = document.querySelector<HTMLElement>('#primary-navigation');
 	const desktopNavigation = window.matchMedia('(min-width: 48rem)');
@@ -60,7 +67,11 @@ const isCurrentDestination = (href: string) => currentPath === href || currentPa
 		if (!navToggle || !navPanel) return;
 
 		navToggle.setAttribute('aria-expanded', String(open));
-		navToggle.setAttribute('aria-label', open ? '关闭主导航' : '打开主导航');
+		const locale = isSupportedLocale(document.documentElement.dataset.uiLocale)
+			? document.documentElement.dataset.uiLocale
+			: 'en';
+		navToggle.setAttribute('aria-label', message(locale, open ? 'nav.close' : 'nav.open'));
+		navToggle.dataset.i18nAriaLabel = open ? 'nav.close' : 'nav.open';
 		navPanel.toggleAttribute('data-open', open);
 
 		if (!open && restoreFocus) navToggle.focus();

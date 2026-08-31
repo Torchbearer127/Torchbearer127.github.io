@@ -1,0 +1,92 @@
+---
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import LocalizedText from '../components/LocalizedText.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import EssayVariant from '../components/essay/EssayVariant.astro';
+import ReadingProgress from '../components/essay/ReadingProgress.astro';
+import type { SupportedLocale } from '../i18n/locales.ts';
+import {
+	resolveWritingVariant,
+	type WritingEntity,
+} from '../lib/writing.ts';
+import '../styles/essay.css';
+import BaseLayout from './BaseLayout.astro';
+
+interface RenderedVariant {
+	locale: SupportedLocale;
+	Content: AstroComponentFactory;
+	headings: Array<{ depth: number; slug: string; text: string }>;
+}
+
+interface Props {
+	entity: WritingEntity;
+	variants: RenderedVariant[];
+}
+
+const { entity, variants } = Astro.props;
+const defaultVariant = resolveWritingVariant(entity, 'en');
+const pageTitles = Object.fromEntries(
+	entity.availableLocales.map((locale) => [locale, `${entity.variants[locale]!.title} — 执炬人`]),
+);
+const pageDescriptions = Object.fromEntries(
+	entity.availableLocales.map((locale) => [locale, entity.variants[locale]!.description]),
+);
+---
+
+<BaseLayout
+	chrome="none"
+	bodyClass="essay-document"
+	title={`${defaultVariant.title} — 执炬人`}
+	description={defaultVariant.description}
+	localizedTitle={pageTitles}
+	localizedDescription={pageDescriptions}
+>
+	<a class="skip-link" href="#essay-content"><LocalizedText key="skip.main" /></a>
+	<ReadingProgress />
+	<header class="essay-topbar">
+		<div class="essay-topbar__inner">
+			<a class="essay-back" href="/writing/essays"><span aria-hidden="true">←</span> <LocalizedText key="common.backEssays" /></a>
+			<div
+				class="essay-topbar__title"
+				data-content-group={entity.id}
+				data-available-locales={entity.availableLocales.join(',')}
+				data-original-locale={entity.originalLocale}
+				data-content-locale={defaultVariant.locale}
+			>
+				{entity.availableLocales.map((locale) => (
+					<span data-content-copy={locale} lang={locale} hidden={locale !== defaultVariant.locale}>
+						{entity.variants[locale]!.title}
+					</span>
+				))}
+			</div>
+			<div class="essay-topbar__controls">
+				<LanguageSwitcher />
+				<ThemeToggle />
+			</div>
+		</div>
+	</header>
+
+	<main
+		id="essay-content"
+		class="essay-shell"
+		data-essay-reader
+		data-original-locale={entity.originalLocale}
+		data-available-locales={entity.availableLocales.join(',')}
+		data-default-locale={defaultVariant.locale}
+	>
+		{variants.map((variant) => (
+			<EssayVariant
+				entity={entity}
+				locale={variant.locale}
+				Content={variant.Content}
+				headings={variant.headings}
+				active={variant.locale === defaultVariant.locale}
+			/>
+		))}
+	</main>
+
+	<script>
+		import '../scripts/essay-reader.ts';
+	</script>
+</BaseLayout>

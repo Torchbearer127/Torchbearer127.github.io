@@ -1,0 +1,83 @@
+---
+import { message } from '../i18n/messages.ts';
+import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
+---
+
+<label class="language-switcher">
+	<span class="visually-hidden" data-i18n="language.label">{message('en', 'language.label')}</span>
+	<svg viewBox="0 0 24 24" aria-hidden="true">
+		<circle cx="12" cy="12" r="8.5" />
+		<path d="M3.8 12h16.4M12 3.5c2.2 2.3 3.3 5.2 3.3 8.5S14.2 18.2 12 20.5M12 3.5C9.8 5.8 8.7 8.7 8.7 12s1.1 6.2 3.3 8.5" />
+	</svg>
+	<select
+		data-locale-switcher
+		aria-label={message('en', 'language.label')}
+		data-i18n-aria-label="language.label"
+	>
+		{SUPPORTED_LOCALES.map((locale) => (
+			<option value={locale} selected={locale === 'en'}>{message(locale, `language.${locale}`)}</option>
+		))}
+	</select>
+</label>
+
+<style>
+	.language-switcher {
+		position: relative;
+		min-height: 2.5rem;
+		display: inline-flex;
+		align-items: center;
+		color: var(--color-text-muted);
+	}
+
+	.language-switcher svg {
+		position: absolute;
+		left: 0.55rem;
+		width: 1rem;
+		height: 1rem;
+		fill: none;
+		pointer-events: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-width: 1.45;
+	}
+
+	.language-switcher select {
+		min-height: 2.5rem;
+		padding: 0.35rem 1.7rem 0.35rem 1.85rem;
+		border: 1px solid transparent;
+		border-radius: var(--radius-sm);
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.language-switcher select:focus-visible {
+		outline: var(--focus-width) solid var(--color-focus-ring);
+		outline-offset: var(--focus-offset);
+	}
+
+	@media (hover: hover) {
+		.language-switcher:hover {
+			color: var(--color-accent-hover);
+		}
+
+		.language-switcher select:hover {
+			border-color: var(--color-border-control);
+			background: var(--color-accent-soft);
+		}
+	}
+
+	@media (max-width: 24rem) {
+		.language-switcher svg {
+			display: none;
+		}
+
+		.language-switcher select {
+			width: 3.4rem;
+			padding-inline: 0.4rem 1.25rem;
+		}
+	}
+</style>

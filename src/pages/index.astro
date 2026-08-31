@@ -4,35 +4,20 @@ import HeroField from '../components/effects/HeroField.astro';
 import SectionField from '../components/effects/SectionField.astro';
 import HomeHero from '../components/home/HomeHero.astro';
 import WritingList from '../components/writing/WritingList.astro';
+import LocalizedContent from '../components/LocalizedContent.astro';
+import { homeSections as sections } from '../data/site-content.ts';
 import { getPublishedWriting } from '../lib/writing';
 
 const latestWriting = await getPublishedWriting({ limit: 3 });
 
-const sections = [
-	{
-		id: 'current-work',
-		title: 'Current Work',
-		emptyTitle: 'The public work overview is taking shape.',
-		emptyDescription: 'Current focus, selected work, and publications will appear here as they are ready.',
-		href: '/work',
-		linkLabel: 'Explore Work',
-		fieldVariant: 'section-right' as const,
-		fieldSeed: 211,
-	},
-	{
-		id: 'latest-writing',
-		title: 'Latest Writing',
-		emptyTitle: 'No writing published yet.',
-		emptyDescription: 'Research notes, technical writing, and essays will appear here when they are ready.',
-		href: '/writing',
-		linkLabel: 'Browse Writing',
-		fieldVariant: 'section-left' as const,
-		fieldSeed: 337,
-	},
-];
 ---
 
-<BaseLayout>
+<BaseLayout
+	title="Torchbearer127 — Agent Systems × Cyberspace Security"
+	description="The personal digital space of Torchbearer127."
+	localizedTitle={{ 'zh-CN': '执炬人 — 智能体系统 × 网络空间安全', de: 'Torchbearer127 — Agentensysteme × Cyberspace-Sicherheit' }}
+	localizedDescription={{ 'zh-CN': '执炬人 / Torchbearer127 的个人数字空间。', de: 'Der persönliche digitale Raum von Torchbearer127.' }}
+>
 	<div class="home-shell">
 		<div class="hero-stage" data-hero-stage data-field-surface>
 			<HeroField />
@@ -48,15 +33,15 @@ const sections = [
 				>
 					<SectionField variant={section.fieldVariant} seed={section.fieldSeed} />
 					<div class="section-heading">
-						<h2 id={section.id}>{section.title}</h2>
-						<a href={section.href}>{section.linkLabel} <span aria-hidden="true">→</span></a>
+						<h2 id={section.id}><LocalizedContent id={`home-${section.id}-title`} values={section.title} /></h2>
+						<a href={section.href}><LocalizedContent id={`home-${section.id}-link`} values={section.linkLabel} /> <span aria-hidden="true">→</span></a>
 					</div>
 					{section.id === 'latest-writing' && latestWriting.length ? (
 						<WritingList entries={latestWriting} variant="mixed" />
 					) : (
 						<div class="empty-row">
-							<p class="empty-row__title">{section.emptyTitle}</p>
-							<p>{section.emptyDescription}</p>
+							<p class="empty-row__title"><LocalizedContent id={`home-${section.id}-empty-title`} values={section.emptyTitle} /></p>
+							<p><LocalizedContent id={`home-${section.id}-empty-description`} values={section.emptyDescription} /></p>
 						</div>
 					)}
 				</section>

@@ -1,66 +1,71 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import LocalizedText from '../components/LocalizedText.astro';
+import { createFirstPaintBootstrap } from '../i18n/bootstrap.ts';
+import type { LocalizedString } from '../i18n/content.ts';
 import '../styles/global.css';
 import '../styles/effects.css';
 
 interface Props {
 	title?: string;
 	description?: string;
+	localizedTitle?: LocalizedString;
+	localizedDescription?: LocalizedString;
+	chrome?: 'site' | 'none';
+	bodyClass?: string;
 }
 
 const {
 	title = '执炬人 / Torchbearer127',
 	description = '执炬人 / Torchbearer127 的个人数字空间。',
+	localizedTitle = {},
+	localizedDescription = {},
+	chrome = 'site',
+	bodyClass,
 } = Astro.props;
+const titles = { en: title, ...localizedTitle };
+const descriptions = { en: description, ...localizedDescription };
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const bootstrapSource = createFirstPaintBootstrap();
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html
+	lang="en"
+	data-title-en={titles.en}
+	data-title-zh-cn={titles['zh-CN'] ?? titles.en}
+	data-title-de={titles.de ?? titles.en}
+	data-description-en={descriptions.en}
+	data-description-zh-cn={descriptions['zh-CN'] ?? descriptions.en}
+	data-description-de={descriptions.de ?? descriptions.en}
+>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 		<meta name="theme-color" content="#FFFFFF" />
+		<link rel="canonical" href={canonical} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<title>{title}</title>
-		<script is:inline>
-			(() => {
-				const root = document.documentElement;
-				root.classList.add('js');
-				let savedTheme = null;
-
-				try {
-					savedTheme = localStorage.getItem('torchbearer-theme');
-				} catch {
-					// System preference remains available when storage is blocked.
-				}
-
-				const theme = savedTheme === 'light' || savedTheme === 'dark'
-					? savedTheme
-					: window.matchMedia('(prefers-color-scheme: dark)').matches
-						? 'dark'
-						: 'light';
-
-				root.dataset.theme = theme;
-				root.style.colorScheme = theme;
-				document.querySelector('meta[name="theme-color"]')?.setAttribute(
-					'content',
-					theme === 'dark' ? '#0B1220' : '#FFFFFF',
-				);
-			})();
-		</script>
+		<script is:inline set:html={bootstrapSource}></script>
 	</head>
-	<body>
-		<a class="skip-link" href="#main-content">跳到主要内容</a>
-		<Header />
-		<main id="main-content">
-			<slot />
-		</main>
-		<Footer />
+	<body class={bodyClass}>
+		{chrome === 'site' ? (
+			<>
+				<a class="skip-link" href="#main-content"><LocalizedText key="skip.main" /></a>
+				<Header />
+				<p class="ui-fallback-notice" data-ui-fallback-notice hidden data-i18n="ui.fallback">Some interface text is shown in English.</p>
+				<main id="main-content">
+					<slot />
+				</main>
+				<Footer />
+			</>
+		) : <slot />}
 		<script>
+			import '../i18n/client.ts';
 			import '../scripts/motion/bootstrap.ts';
 		</script>
 	</body>

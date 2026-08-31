@@ -3,12 +3,14 @@ import {
 	formatWritingDate,
 	getWritingHref,
 	noteKindLabels,
+	resolveWritingVariant,
 	writingTypeLabels,
-	type WritingEntry,
+	type WritingEntity,
 } from '../../lib/writing';
+import LocalizedText from '../LocalizedText.astro';
 
 interface Props {
-	entries: WritingEntry[];
+	entries: WritingEntity[];
 	variant?: 'mixed' | 'research-note' | 'essay';
 }
 
@@ -16,24 +18,47 @@ const { entries, variant = 'mixed' } = Astro.props;
 ---
 
 <ol class:list={['writing-list', `writing-list--${variant}`]}>
-	{entries.map((entry) => {
-		const noteKind = entry.data.noteKind ? noteKindLabels[entry.data.noteKind] : undefined;
-		const typeLabel = noteKind ?? writingTypeLabels[entry.data.type];
+	{entries.map((entity) => {
+		const noteKind = entity.data.noteKind ? noteKindLabels[entity.data.noteKind] : undefined;
+		const typeLabel = noteKind ?? writingTypeLabels[entity.type];
+		const defaultVariant = resolveWritingVariant(entity, 'en');
+		const copies = entity.availableLocales.map((locale) => entity.variants[locale]!);
+		const groupProps = {
+			'data-content-group': entity.id,
+			'data-available-locales': entity.availableLocales.join(','),
+			'data-original-locale': entity.originalLocale,
+		};
 
 		return (
 			<li>
 				<article>
 					<div class="writing-list__meta">
-						<span class="writing-list__type">{typeLabel}</span>
-						<time datetime={entry.data.date.toISOString()}>
-							{entry.data.dateLabel ?? formatWritingDate(entry.data.date)}
+						<span class="writing-list__type">
+							{noteKind ? typeLabel : <LocalizedText key={entity.type === 'essay' ? 'essay.type' : 'note.type'} />}
+						</span>
+						<time datetime={entity.data.date.toISOString()}>
+							{entity.data.dateLabel ?? formatWritingDate(entity.data.date)}
 						</time>
 					</div>
-					<h3><a href={getWritingHref(entry)}>{entry.data.title}</a></h3>
-					<p>{entry.data.description}</p>
-					{entry.data.tags?.length ? (
+					<h3>
+						<a href={getWritingHref(entity)} {...groupProps} data-content-locale={defaultVariant.locale}>
+							{copies.map((copy) => (
+								<span data-content-copy={copy.locale} lang={copy.locale} hidden={copy.locale !== defaultVariant.locale}>
+									{copy.title}
+								</span>
+							))}
+						</a>
+					</h3>
+					<p {...groupProps} data-content-locale={defaultVariant.locale}>
+						{copies.map((copy) => (
+							<span data-content-copy={copy.locale} lang={copy.locale} hidden={copy.locale !== defaultVariant.locale}>
+								{copy.description}
+							</span>
+						))}
+					</p>
+					{entity.data.tags?.length ? (
 						<ul class="writing-list__tags" aria-label="Tags">
-							{entry.data.tags.map((tag) => <li>{tag}</li>)}
+							{entity.data.tags.map((tag) => <li>{tag}</li>)}
 						</ul>
 					) : null}
 				</article>

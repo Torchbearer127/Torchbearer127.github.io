@@ -1,22 +1,27 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import LocalizedContent from '../../components/LocalizedContent.astro';
+import LocalizedText from '../../components/LocalizedText.astro';
+import { collectionContent } from '../../data/site-content.ts';
 ---
 
 <BaseLayout
-	title="Gallery — 执炬人"
-	description="执炬人的个人与生活影像选集。"
+	title="Gallery — Torchbearer127"
+	description="A curated collection of personal moments and places."
+	localizedTitle={{ 'zh-CN': '影集 — 执炬人', de: 'Galerie — Torchbearer127' }}
+	localizedDescription={{ 'zh-CN': '执炬人的个人时刻与地点选集。', de: 'Eine kuratierte Sammlung persönlicher Momente und Orte.' }}
 >
 	<div class="page-shell about-collection">
-		<a class="context-link" href="/about"><span aria-hidden="true">←</span> About</a>
+		<a class="context-link" href="/about"><span aria-hidden="true">←</span> <LocalizedText key="nav.about" /></a>
 		<header class="page-intro">
-			<p class="page-eyebrow">Curated moments</p>
-			<h1 class="page-title">Gallery</h1>
+			<p class="page-eyebrow"><LocalizedContent id="gallery-eyebrow" values={collectionContent.gallery.eyebrow} /></p>
+			<h1 class="page-title"><LocalizedContent id="gallery-title" values={collectionContent.gallery.title} /></h1>
 			<p class="page-description">
-				A modest, curated collection of personal moments and places.
+				<LocalizedContent id="gallery-description" values={collectionContent.gallery.description} />
 			</p>
 		</header>
 		<div class="archive-empty gallery-empty">
-			<p>The gallery is waiting for its first selected image.</p>
+			<p><LocalizedContent id="gallery-empty" values={collectionContent.gallery.empty} /></p>
 		</div>
 	</div>
 </BaseLayout>

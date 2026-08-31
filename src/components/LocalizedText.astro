@@ -1,0 +1,23 @@
+---
+import { message, type MessageKey } from '../i18n/messages.ts';
+import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
+
+interface Props {
+	key: MessageKey;
+}
+
+const { key } = Astro.props;
+---
+
+<span class="localized-text">
+	{SUPPORTED_LOCALES.map((locale) => (
+		<span
+			data-locale-copy={locale}
+			lang={locale}
+			hidden={locale !== 'en'}
+			aria-hidden={locale !== 'en' ? 'true' : 'false'}
+		>
+			{message(locale, key)}
+		</span>
+	))}
+</span>

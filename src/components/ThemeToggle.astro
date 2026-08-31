@@ -3,9 +3,9 @@
 	type="button"
 	data-theme-toggle
 	data-specular
-	aria-label="切换至深色主题"
+	aria-label="Switch to dark theme"
 	aria-pressed="false"
-	title="切换至深色主题"
+	title="Switch to dark theme"
 >
 	<svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
 		<path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z" />
@@ -14,10 +14,13 @@
 		<circle cx="12" cy="12" r="3.5" />
 		<path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" />
 	</svg>
-	<span class="visually-hidden">切换颜色主题</span>
+	<span class="visually-hidden" data-theme-toggle-label>Switch theme</span>
 </button>
 
 <script>
+	import { isSupportedLocale } from '../i18n/locales.ts';
+	import { message } from '../i18n/messages.ts';
+
 	const storageKey = 'torchbearer-theme';
 	const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
 	const colorMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -39,10 +42,15 @@
 
 		if (toggle) {
 			const isDark = theme === 'dark';
-			const nextTheme = isDark ? '浅色' : '深色';
+			const locale = isSupportedLocale(document.documentElement.dataset.uiLocale)
+				? document.documentElement.dataset.uiLocale
+				: 'en';
+			const label = message(locale, isDark ? 'theme.toLight' : 'theme.toDark');
 			toggle.setAttribute('aria-pressed', String(isDark));
-			toggle.setAttribute('aria-label', `切换至${nextTheme}主题`);
-			toggle.title = `切换至${nextTheme}主题`;
+			toggle.setAttribute('aria-label', label);
+			toggle.title = label;
+			const hiddenLabel = toggle.querySelector('[data-theme-toggle-label]');
+			if (hiddenLabel) hiddenLabel.textContent = label;
 		}
 
 		window.dispatchEvent(new CustomEvent('torchbearer:themechange', {
@@ -67,6 +75,9 @@
 	});
 
 	applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+	window.addEventListener('torchbearer:localechange', () => {
+		applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+	});
 </script>
 
 <style>

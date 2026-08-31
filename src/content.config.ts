@@ -5,16 +5,15 @@ import { z } from 'astro/zod';
 const writing = defineCollection({
 	loader: glob({
 		base: './src/content/writing',
-		pattern: '**/*.md',
+		pattern: '**/*.{md,mdx}',
 	}),
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
-		date: z.coerce.date(),
+		locale: z.enum(['zh-CN', 'en', 'de']),
+		date: z.coerce.date().optional(),
 		dateLabel: z.string().optional(),
-		type: z.enum(['research-note', 'essay']),
-		draft: z.boolean().default(false),
-		standalone: z.boolean().default(false),
+		draft: z.boolean().optional(),
 		tags: z.array(z.string()).optional(),
 		updated: z.coerce.date().optional(),
 		featured: z.boolean().optional(),

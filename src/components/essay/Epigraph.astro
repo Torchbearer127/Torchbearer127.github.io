@@ -1,0 +1,12 @@
+---
+interface Props {
+	grouped?: boolean;
+	variant?: 'patience';
+}
+
+const { grouped = false, variant } = Astro.props;
+---
+
+<p class:list={['epigraph', grouped && 'key-line-group', variant && `epigraph--${variant}`]}>
+	<slot />
+</p>

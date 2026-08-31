@@ -1,22 +1,27 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import LocalizedContent from '../../components/LocalizedContent.astro';
+import LocalizedText from '../../components/LocalizedText.astro';
+import { collectionContent } from '../../data/site-content.ts';
 ---
 
 <BaseLayout
-	title="Hall of Fame — 执炬人"
-	description="执炬人的代表性里程碑与认可记录。"
+	title="Hall of Fame — Torchbearer127"
+	description="Selected milestones and recognitions."
+	localizedTitle={{ 'zh-CN': '荣誉墙 — 执炬人', de: 'Hall of Fame — Torchbearer127' }}
+	localizedDescription={{ 'zh-CN': '执炬人的精选里程碑与认可记录。', de: 'Ausgewählte Meilensteine und Anerkennungen.' }}
 >
 	<div class="page-shell about-collection">
-		<a class="context-link" href="/about"><span aria-hidden="true">←</span> About</a>
+		<a class="context-link" href="/about"><span aria-hidden="true">←</span> <LocalizedText key="nav.about" /></a>
 		<header class="page-intro">
-			<p class="page-eyebrow">Milestones & recognition</p>
-			<h1 class="page-title">Hall of Fame</h1>
+			<p class="page-eyebrow"><LocalizedContent id="hall-eyebrow" values={collectionContent.hall.eyebrow} /></p>
+			<h1 class="page-title"><LocalizedContent id="hall-title" values={collectionContent.hall.title} /></h1>
 			<p class="page-description">
-				Selected milestones and recognitions worth keeping on the wall.
+				<LocalizedContent id="hall-description" values={collectionContent.hall.description} />
 			</p>
 		</header>
 		<div class="archive-empty">
-			<p>No milestones have been published here yet.</p>
+			<p><LocalizedContent id="hall-empty" values={collectionContent.hall.empty} /></p>
 		</div>
 	</div>
 </BaseLayout>

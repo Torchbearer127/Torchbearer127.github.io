@@ -1,3 +1,7 @@
+---
+import LocalizedText from './LocalizedText.astro';
+---
+
 <footer class="site-footer">
 	<div class="site-footer__inner">
 		<section class="footer-identity" aria-labelledby="footer-identity-title">
@@ -5,21 +9,21 @@
 				<span class="footer-identity__mark" aria-hidden="true"></span>
 				执炬人 / <span translate="no">Torchbearer127</span>
 			</h2>
-			<p>Agent systems, cyberspace security, and the intersections between them.</p>
-			<a href="/about#research">Research focus <span aria-hidden="true">→</span></a>
+			<p><LocalizedText key="footer.tagline" /></p>
+			<a href="/about#research"><LocalizedText key="footer.research" /> <span aria-hidden="true">→</span></a>
 		</section>
 
 		<nav class="footer-group" aria-labelledby="footer-explore-title">
-			<h2 id="footer-explore-title">Explore</h2>
+			<h2 id="footer-explore-title"><LocalizedText key="footer.explore" /></h2>
 			<ul>
-				<li><a href="/work">Work</a></li>
-				<li><a href="/writing">Writing</a></li>
-				<li><a href="/about">About</a></li>
+				<li><a href="/work"><LocalizedText key="nav.work" /></a></li>
+				<li><a href="/writing"><LocalizedText key="nav.writing" /></a></li>
+				<li><a href="/about"><LocalizedText key="nav.about" /></a></li>
 			</ul>
 		</nav>
 
 		<nav class="footer-group" aria-labelledby="footer-elsewhere-title">
-			<h2 id="footer-elsewhere-title">Elsewhere</h2>
+			<h2 id="footer-elsewhere-title"><LocalizedText key="footer.elsewhere" /></h2>
 			<ul>
 				<li><a href="https://github.com/Torchbearer127" rel="me">GitHub</a></li>
 			</ul>
@@ -28,7 +32,7 @@
 
 	<div class="site-footer__legal">
 		<p>© 2026 执炬人</p>
-		<p>Built with Astro</p>
+		<p><LocalizedText key="footer.built" /></p>
 	</div>
 </footer>
 

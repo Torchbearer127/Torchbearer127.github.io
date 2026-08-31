@@ -1,27 +1,30 @@
 ---
-import { getCollection, render, type CollectionEntry } from 'astro:content';
-import ArticleLayout from '../../../layouts/ArticleLayout.astro';
-import { getWritingSlug } from '../../../lib/writing';
+import { render } from 'astro:content';
+import EssayLayout from '../../../layouts/EssayLayout.astro';
+import {
+	getPublishedWriting,
+	getWritingSlug,
+	type WritingEntity,
+} from '../../../lib/writing.ts';
 
 export async function getStaticPaths() {
-	const entries = await getCollection('writing', ({ data }) => {
-		return !data.draft && !data.standalone && data.type === 'essay';
-	});
-
-	return entries.map((entry) => ({
-		params: { slug: getWritingSlug(entry) },
-		props: { entry },
+	const entities = await getPublishedWriting({ type: 'essay' });
+	return entities.map((entity) => ({
+		params: { slug: getWritingSlug(entity) },
+		props: { entity },
 	}));
 }
 
 interface Props {
-	entry: CollectionEntry<'writing'>;
+	entity: WritingEntity;
 }
 
-const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { entity } = Astro.props;
+const variants = await Promise.all(entity.availableLocales.map(async (locale) => {
+	const variant = entity.variants[locale]!;
+	const { Content, headings } = await render(variant.entry);
+	return { locale, Content, headings };
+}));
 ---
 
-<ArticleLayout entry={entry} backHref="/writing/essays" backLabel="Essays">
-	<Content />
-</ArticleLayout>
+<EssayLayout entity={entity} variants={variants} />
