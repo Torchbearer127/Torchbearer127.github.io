@@ -1,0 +1,119 @@
+---
+import type { WritingEntry } from '../lib/writing';
+import {
+	formatWritingDate,
+	noteKindLabels,
+	writingTypeLabels,
+} from '../lib/writing';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+	entry: WritingEntry;
+	backHref: string;
+	backLabel: string;
+}
+
+const { entry, backHref, backLabel } = Astro.props;
+const { title, description, date, updated, tags, type, noteKind } = entry.data;
+const articleType = noteKind ? noteKindLabels[noteKind] : writingTypeLabels[type];
+---
+
+<BaseLayout title={`${title} — 执炬人`} description={description}>
+	<article class:list={['article-shell', `article-shell--${type}`]}>
+		<a class="context-link" href={backHref}><span aria-hidden="true">←</span> {backLabel}</a>
+
+		<header class="article-header">
+			<div class="article-meta">
+				<span>{articleType}</span>
+				<time datetime={date.toISOString()}>{formatWritingDate(date)}</time>
+				{updated ? <span>Updated {formatWritingDate(updated)}</span> : null}
+			</div>
+			<h1>{title}</h1>
+			<p>{description}</p>
+			{tags?.length ? (
+				<ul class="article-tags" aria-label="Tags">
+					{tags.map((tag) => <li>{tag}</li>)}
+				</ul>
+			) : null}
+		</header>
+
+		<div class="prose article-body">
+			<slot />
+		</div>
+	</article>
+</BaseLayout>
+
+<style>
+	.article-shell {
+		width: min(100%, var(--layout-page-max));
+		margin-inline: auto;
+		padding: clamp(3rem, 7vw, 5.5rem)
+			max(var(--layout-gutter), env(safe-area-inset-right)) var(--section-gap)
+			max(var(--layout-gutter), env(safe-area-inset-left));
+	}
+
+	.article-header {
+		max-width: var(--layout-prose-max);
+		margin-top: var(--space-8);
+		padding-bottom: clamp(2.5rem, 6vw, 4rem);
+		border-bottom: 1px solid var(--color-border-subtle);
+		display: grid;
+		gap: var(--space-5);
+	}
+
+	.article-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2) var(--space-5);
+		color: var(--color-text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.055em;
+		text-transform: uppercase;
+	}
+
+	.article-meta > :first-child {
+		color: var(--color-accent);
+		font-weight: 700;
+	}
+
+	.article-header h1,
+	.article-header p {
+		margin: 0;
+	}
+
+	.article-header h1 {
+		font-size: clamp(2.35rem, 1.75rem + 3vw, 4.5rem);
+		font-weight: 680;
+		letter-spacing: -0.04em;
+		line-height: 1.06;
+	}
+
+	.article-header > p {
+		max-width: 40rem;
+		color: var(--color-text-muted);
+		font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+	}
+
+	.article-tags {
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2) var(--space-4);
+		color: var(--color-text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		list-style: none;
+	}
+
+	.article-body {
+		margin-top: clamp(3rem, 7vw, 5rem);
+	}
+
+	.article-shell--essay .article-meta > :first-child {
+		color: var(--color-text-muted);
+		font-family: var(--font-sans);
+	}
+</style>

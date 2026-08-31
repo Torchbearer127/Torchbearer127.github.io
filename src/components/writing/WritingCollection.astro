@@ -1,0 +1,64 @@
+---
+import type { WritingEntry, WritingType } from '../../lib/writing';
+import WritingList from './WritingList.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	type: WritingType;
+	entries: WritingEntry[];
+}
+
+const { title, description, type, entries } = Astro.props;
+const years = [...new Set(entries.map((entry) => entry.data.date.getFullYear()))];
+const emptyMessage = type === 'research-note'
+	? 'No research notes have been published yet.'
+	: 'No essays have been published yet.';
+---
+
+<div class:list={['page-shell', 'writing-collection', `writing-collection--${type}`]}>
+	<a class="context-link" href="/writing"><span aria-hidden="true">←</span> Writing</a>
+
+	<header class="page-intro">
+		<p class="page-eyebrow">{type === 'research-note' ? 'Technical archive' : 'Long-form reflections'}</p>
+		<h1 class="page-title">{title}</h1>
+		<p class="page-description">{description}</p>
+	</header>
+
+	{entries.length ? (
+		<div class="year-groups">
+			{years.map((year) => (
+				<section class="year-group" aria-labelledby={`year-${year}`}>
+					<h2 id={`year-${year}`}>{year}</h2>
+					<WritingList entries={entries.filter((entry) => entry.data.date.getFullYear() === year)} variant={type} />
+				</section>
+			))}
+		</div>
+	) : (
+		<div class="archive-empty">
+			<p>{emptyMessage}</p>
+		</div>
+	)}
+</div>
+
+<style>
+	.writing-collection .page-intro {
+		margin-top: var(--space-8);
+	}
+
+	.year-groups {
+		max-width: var(--layout-prose-max);
+		margin-top: clamp(3.5rem, 8vw, 5.5rem);
+		display: grid;
+		gap: var(--space-16);
+	}
+
+	.year-group h2 {
+		margin: 0 0 var(--space-4);
+		color: var(--color-text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		font-weight: 650;
+		letter-spacing: 0.08em;
+	}
+</style>

@@ -1,0 +1,19 @@
+---
+import WritingCollection from '../../../components/writing/WritingCollection.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPublishedWriting } from '../../../lib/writing';
+
+const entries = await getPublishedWriting({ type: 'essay' });
+---
+
+<BaseLayout
+	title="Essays — 执炬人"
+	description="关于研究、工程与思考方式的长篇写作。"
+>
+	<WritingCollection
+		title="Essays"
+		description="Long-form reflections on research, engineering, and ways of thinking."
+		type="essay"
+		entries={entries}
+	/>
+</BaseLayout>

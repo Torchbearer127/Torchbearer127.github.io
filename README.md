@@ -25,6 +25,24 @@ npm run build
 npm run preview
 ```
 
+## Writing 内容
+
+Writing 使用一个统一的 Astro Content Collection，内容放在：
+
+```text
+src/content/writing/
+├── research-notes/
+└── essays/
+```
+
+Markdown frontmatter 的必填字段为 `title`、`description`、`date` 和 `type`。`type` 只能是
+`research-note` 或 `essay`；`draft` 默认为 `false`，也可使用可选的 `tags`、`updated`、
+`featured` 和 `noteKind`。
+
+所有公开页面和生产构建都会排除 `draft: true` 的内容。当前没有加入公开示例文章；新内容可直接放入对应目录。
+`research-notes/_content-system-fixture.md` 是明确标记为 draft 的内部管线夹具，用于避免空 collection
+产生构建警告，不会生成公开列表项或详情路由。
+
 ## GitHub Pages 部署
 
 项目按 GitHub Pages user site 配置：

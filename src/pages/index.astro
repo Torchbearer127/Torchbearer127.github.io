@@ -3,6 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroField from '../components/effects/HeroField.astro';
 import SectionField from '../components/effects/SectionField.astro';
 import HomeHero from '../components/home/HomeHero.astro';
+import WritingList from '../components/writing/WritingList.astro';
+import { getPublishedWriting } from '../lib/writing';
+
+const latestWriting = await getPublishedWriting({ limit: 3 });
 
 const sections = [
 	{
@@ -47,10 +51,14 @@ const sections = [
 						<h2 id={section.id}>{section.title}</h2>
 						<a href={section.href}>{section.linkLabel} <span aria-hidden="true">→</span></a>
 					</div>
-					<div class="empty-row">
-						<p class="empty-row__title">{section.emptyTitle}</p>
-						<p>{section.emptyDescription}</p>
-					</div>
+					{section.id === 'latest-writing' && latestWriting.length ? (
+						<WritingList entries={latestWriting} variant="mixed" />
+					) : (
+						<div class="empty-row">
+							<p class="empty-row__title">{section.emptyTitle}</p>
+							<p>{section.emptyDescription}</p>
+						</div>
+					)}
 				</section>
 			))}
 		</div>

@@ -266,6 +266,26 @@ p {
 	line-height: 1.65;
 }
 
+.context-link {
+	width: fit-content;
+	min-height: 2.5rem;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	color: var(--color-accent);
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+@media (hover: hover) {
+	.context-link:hover {
+		color: var(--color-accent-hover);
+		text-decoration: underline;
+		text-underline-offset: 0.28em;
+	}
+}
+
 .archive-empty {
 	max-width: var(--layout-prose-max);
 	margin-top: clamp(3rem, 7vw, 5rem);

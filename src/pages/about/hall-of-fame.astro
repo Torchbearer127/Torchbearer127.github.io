@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+	title="Hall of Fame — 执炬人"
+	description="执炬人的代表性里程碑与认可记录。"
+>
+	<div class="page-shell about-collection">
+		<a class="context-link" href="/about"><span aria-hidden="true">←</span> About</a>
+		<header class="page-intro">
+			<p class="page-eyebrow">Milestones & recognition</p>
+			<h1 class="page-title">Hall of Fame</h1>
+			<p class="page-description">
+				Selected milestones and recognitions worth keeping on the wall.
+			</p>
+		</header>
+		<div class="archive-empty">
+			<p>No milestones have been published here yet.</p>
+		</div>
+	</div>
+</BaseLayout>
+
+<style>
+	.about-collection .page-intro {
+		margin-top: var(--space-8);
+	}
+</style>

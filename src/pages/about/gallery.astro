@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+	title="Gallery — 执炬人"
+	description="执炬人的个人与生活影像选集。"
+>
+	<div class="page-shell about-collection">
+		<a class="context-link" href="/about"><span aria-hidden="true">←</span> About</a>
+		<header class="page-intro">
+			<p class="page-eyebrow">Curated moments</p>
+			<h1 class="page-title">Gallery</h1>
+			<p class="page-description">
+				A modest, curated collection of personal moments and places.
+			</p>
+		</header>
+		<div class="archive-empty gallery-empty">
+			<p>The gallery is waiting for its first selected image.</p>
+		</div>
+	</div>
+</BaseLayout>
+
+<style>
+	.about-collection .page-intro {
+		margin-top: var(--space-8);
+	}
+
+	.gallery-empty {
+		min-height: 10rem;
+		display: flex;
+		align-items: end;
+		background: var(--color-surface-subtle);
+	}
+</style>

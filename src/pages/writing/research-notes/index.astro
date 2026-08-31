@@ -1,0 +1,19 @@
+---
+import WritingCollection from '../../../components/writing/WritingCollection.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPublishedWriting } from '../../../lib/writing';
+
+const entries = await getPublishedWriting({ type: 'research-note' });
+---
+
+<BaseLayout
+	title="Research Notes — 执炬人"
+	description="来自论文、实验、实现与软件安全研究的技术记录。"
+>
+	<WritingCollection
+		title="Research Notes"
+		description="Fragments from papers, experiments, implementations, and security research."
+		type="research-note"
+		entries={entries}
+	/>
+</BaseLayout>

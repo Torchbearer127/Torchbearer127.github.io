@@ -1,0 +1,12 @@
+---
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+const article = await readFile(
+	resolve('src/content/writing/essays/sovereign-driver.html'),
+);
+
+return new Response(article, {
+	headers: { 'Content-Type': 'text/html; charset=utf-8' },
+});
+---
