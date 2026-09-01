@@ -128,6 +128,54 @@ await report('Hero identity title keeps a restrained responsive scale', async ()
 	}
 });
 
+await report('Language control uses the shared specular response', async () => {
+	await load();
+	const target = await evaluate(`(() => {
+		const control = document.querySelector('[data-locale-switcher]')?.closest('.language-switcher');
+		const rect = control?.getBoundingClientRect();
+		return {
+			hasSpecular: control?.hasAttribute('data-specular') ?? false,
+			pointer: rect ? { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 } : null,
+		};
+	})()`);
+	assert.equal(target.hasSpecular, true);
+	assert.ok(target.pointer);
+
+	await send('Input.dispatchMouseEvent', {
+		type: 'mouseMoved',
+		x: target.pointer.x,
+		y: target.pointer.y,
+		pointerType: 'mouse',
+	});
+	await wait(180);
+	const strength = await evaluate(`Number.parseFloat(
+		getComputedStyle(document.querySelector('.language-switcher')).getPropertyValue('--spec-strength') || '0'
+	)`);
+	assert.ok(strength > 0.35);
+});
+
+await report('Header controls remain compact and separated', async () => {
+	await load();
+	const result = await evaluate(`(() => {
+		const language = document.querySelector('.language-switcher').getBoundingClientRect();
+		const theme = document.querySelector('[data-theme-toggle]').getBoundingClientRect();
+		return {
+			languageWidth: language.width,
+			controlGap: theme.left - language.right,
+		};
+	})()`);
+	assert.ok(result.languageWidth <= 96, `language width: ${result.languageWidth}`);
+	assert.ok(result.controlGap >= 8, `control gap: ${result.controlGap}`);
+});
+
+await report('Language control uses compact visible labels', async () => {
+	await load();
+	const labels = await evaluate(`[
+		...document.querySelectorAll('[data-locale-switcher] option')
+	].map((option) => option.textContent.trim())`);
+	assert.deepEqual(labels, ['中文', 'EN', 'DE']);
+});
+
 await report('Hero path signal remains visible across both themes', async () => {
 	for (const item of [
 		{ theme: 'light', width: 1440, height: 900, paths: 26, minimumCanvasAlpha: 0.00095, minimumLineAlpha: 0.34 },

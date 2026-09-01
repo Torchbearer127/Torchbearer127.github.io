@@ -1,9 +1,15 @@
 ---
 import { message } from '../i18n/messages.ts';
 import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
+
+const compactLocaleLabels = {
+	'zh-CN': '中文',
+	en: 'EN',
+	de: 'DE',
+} as const;
 ---
 
-<label class="language-switcher">
+<label class="language-switcher" data-specular>
 	<span class="visually-hidden" data-i18n="language.label">{message('en', 'language.label')}</span>
 	<svg viewBox="0 0 24 24" aria-hidden="true">
 		<circle cx="12" cy="12" r="8.5" />
@@ -15,7 +21,7 @@ import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
 		data-i18n-aria-label="language.label"
 	>
 		{SUPPORTED_LOCALES.map((locale) => (
-			<option value={locale} selected={locale === 'en'}>{message(locale, `language.${locale}`)}</option>
+			<option value={locale} selected={locale === 'en'}>{compactLocaleLabels[locale]}</option>
 		))}
 	</select>
 </label>
@@ -23,9 +29,13 @@ import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
 <style>
 	.language-switcher {
 		position: relative;
-		min-height: 2.5rem;
+		width: 6rem;
+		height: 2.5rem;
+		border: 1px solid transparent;
+		border-radius: var(--radius-sm);
 		display: inline-flex;
 		align-items: center;
+		background: transparent;
 		color: var(--color-text-muted);
 	}
 
@@ -42,10 +52,11 @@ import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
 	}
 
 	.language-switcher select {
-		min-height: 2.5rem;
-		padding: 0.35rem 1.7rem 0.35rem 1.85rem;
-		border: 1px solid transparent;
-		border-radius: var(--radius-sm);
+		width: 100%;
+		height: 100%;
+		padding: 0.35rem 1.15rem 0.35rem 1.7rem;
+		border: 0;
+		border-radius: inherit;
 		background: transparent;
 		color: inherit;
 		font: inherit;
@@ -59,14 +70,19 @@ import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
 		outline-offset: var(--focus-offset);
 	}
 
+	.language-switcher:focus-within::after {
+		opacity: 0.72;
+	}
+
+	.language-switcher:has(select:active) {
+		background: var(--color-surface-active);
+	}
+
 	@media (hover: hover) {
 		.language-switcher:hover {
-			color: var(--color-accent-hover);
-		}
-
-		.language-switcher select:hover {
 			border-color: var(--color-border-control);
 			background: var(--color-accent-soft);
+			color: var(--color-accent-hover);
 		}
 	}
 
@@ -76,7 +92,7 @@ import { SUPPORTED_LOCALES } from '../i18n/locales.ts';
 		}
 
 		.language-switcher select {
-			width: 3.4rem;
+			width: 100%;
 			padding-inline: 0.4rem 1.25rem;
 		}
 	}
