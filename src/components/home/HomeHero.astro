@@ -1,3 +1,7 @@
+---
+import LocalizedContent from '../LocalizedContent.astro';
+---
+
 <section
 	class="hero"
 	aria-labelledby="identity-title"
@@ -19,7 +23,14 @@
 			<span translate="no">Torchbearer127</span>
 		</p>
 		<p class="hero-statement" data-intro="statement">
-			“In the heart of darkness, I found there was, within me, an invincible torch.”
+			<LocalizedContent
+				id="home-signature"
+				values={{
+					'zh-CN': '“此后如竟没有炬火，我便是唯一的光。”',
+					en: '“In the heart of darkness, I found there was, within me, an invincible torch.”',
+					de: '„Aber ich lebe in meinem eignen Lichte, ich trinke die Flammen in mich zurück, die aus mir brechen.“',
+				}}
+			/>
 		</p>
 	</div>
 
@@ -170,8 +181,8 @@
 	.hero-statement {
 		margin: var(--space-8) 0 0;
 		color: var(--color-text-muted);
-		font-family: ui-serif, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-		font-size: 1rem;
+		font-family: ui-serif, "Iowan Old Style", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+		font-size: 0.9375rem;
 		font-style: italic;
 		line-height: 1.65;
 	}
@@ -181,6 +192,9 @@
 			padding-block: 6rem 4.5rem;
 		}
 
+	}
+
+	@media (min-width: 64rem) {
 		.hero-statement {
 			white-space: nowrap;
 		}

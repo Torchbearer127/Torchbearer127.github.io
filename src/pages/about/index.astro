@@ -8,7 +8,7 @@ import { aboutContent } from '../../data/site-content.ts';
 	title="About — Torchbearer127"
 	description="About Torchbearer127 and work across agent systems, cyberspace security, AI4Sec, and agent security."
 	localizedTitle={{ 'zh-CN': '关于 — 执炬人', de: 'Über mich — Torchbearer127' }}
-	localizedDescription={{ 'zh-CN': '关于执炬人 / Torchbearer127 在智能体系统、网络空间安全、AI4Sec 与智能体安全方向的工作。', de: 'Über Torchbearer127 und die Arbeit an Agentensystemen, Cyberspace-Sicherheit, AI4Sec und Agentensicherheit.' }}
+	localizedDescription={{ 'zh-CN': '执炬人 (Torchbearer127) 在智能体系统、网络安全与 AI4Sec 前沿的探索脉络。', de: 'Über Torchbearer127 und die Arbeit an Agentensystemen, Cyberspace-Sicherheit, AI4Sec und Agentensicherheit.' }}
 >
 	<div class="page-shell about-hub">
 		<header class="page-intro" id="identity">
@@ -28,7 +28,9 @@ import { aboutContent } from '../../data/site-content.ts';
 			<div class="focus-groups">
 				{aboutContent.focusAreas.map((area) => (
 					<section class="focus-group" aria-labelledby={area.id}>
-						<h3 id={area.id}><LocalizedContent id={`about-${area.id}-title`} values={area.title} /></h3>
+						<h3 id={area.id} class:list={{ 'focus-group__title--intersection': area.id === 'ai4sec' }}>
+							<LocalizedContent id={`about-${area.id}-title`} values={area.title} />
+						</h3>
 						<ul>
 							{area.items.map((item, index) => <li><LocalizedContent id={`about-${area.id}-item-${index}`} values={item} /></li>)}
 						</ul>
@@ -119,6 +121,10 @@ import { aboutContent } from '../../data/site-content.ts';
 		font-size: 1.0625rem;
 		font-weight: 650;
 		line-height: 1.45;
+	}
+
+	:global(:root[data-ui-locale='zh-CN']) .focus-group__title--intersection {
+		word-break: keep-all;
 	}
 
 	.focus-group ul,

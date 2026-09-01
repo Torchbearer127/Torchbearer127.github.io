@@ -117,7 +117,6 @@
 	padding-top: 0.625rem;
 }
 
-.essay-contents__title,
 .essay-contents__label {
 	margin-left: 0.9375rem;
 	color: var(--essay-ink-soft);
@@ -125,14 +124,6 @@
 	font-weight: 700;
 	line-height: 1.45;
 }
-
-.essay-contents__title {
-	margin-bottom: 0.5rem;
-	font-size: 0.875rem;
-	letter-spacing: 0;
-	white-space: nowrap;
-}
-
 .essay-contents__label {
 	margin-bottom: 1rem;
 	font-size: clamp(0.625rem, 0.78vw, 0.6875rem);

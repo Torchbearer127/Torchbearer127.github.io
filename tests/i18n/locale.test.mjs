@@ -42,7 +42,7 @@ test('content fallback is requested, English, then original without duplicates',
 });
 
 test('typed UI messages and structured strings use centralized fallback', () => {
-	assert.equal(message('zh-CN', 'nav.writing'), '写作');
+	assert.equal(message('zh-CN', 'nav.writing'), '文字');
 	assert.equal(message('de', 'nav.writing'), 'Texte');
 	assert.equal(localize({ en: 'About', 'zh-CN': '关于' }, 'de'), 'About');
 	assert.equal(localize({ 'zh-CN': '执炬人' }, 'de', 'zh-CN'), '执炬人');

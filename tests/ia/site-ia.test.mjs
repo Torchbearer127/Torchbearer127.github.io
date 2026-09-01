@@ -38,7 +38,7 @@ test('Primary Navigation keeps three neutral routes and exposes three UI locales
 	const navigation = primaryNavigation(readPage('/'));
 	const links = [...navigation.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((match) => match[1]);
 	assert.deepEqual(links, ['/work', '/writing', '/about']);
-	assert.match(navigation, /data-locale-copy="zh-CN"[^>]*>工作/);
+	assert.match(navigation, /data-locale-copy="zh-CN"[^>]*>研究与实践/);
 	assert.match(navigation, /data-locale-copy="en"[^>]*>Work/);
 	assert.match(navigation, /data-locale-copy="de"[^>]*>Arbeit/);
 });
@@ -54,10 +54,18 @@ test('all site pages use language-neutral routes and shared locale controls', ()
 	}
 });
 
+test('homepage signature exposes one localized quotation per supported locale', () => {
+	const html = readPage('/');
+	const statement = html.match(/<p class="hero-statement"[\s\S]*?<\/p>/)?.[0] ?? '';
+	assert.match(statement, /data-content-copy="zh-CN"[^>]*>“此后如竟没有炬火，我便是唯一的光。”/);
+	assert.match(statement, /data-content-copy="en"[^>]*>“In the heart of darkness, I found there was, within me, an invincible torch.”/);
+	assert.match(statement, /data-content-copy="de"[^>]*>„Aber ich lebe in meinem eignen Lichte, ich trinke die Flammen in mich zurück, die aus mir brechen.“/);
+});
+
 test('Work keeps the planned hierarchy in all three structured locales', () => {
 	const html = readPage('/work');
 	const text = plainText(extractRegion(html, 'main'));
-	for (const label of ['Current Focus', 'Selected Work', 'Publications', '当前方向', 'Aktueller Fokus']) {
+	for (const label of ['Current Focus', 'Selected Work', 'Publications', '当前聚焦', 'Aktueller Fokus']) {
 		assert.match(text, new RegExp(label));
 	}
 	assert.match(primaryNavigation(html), /href="\/work" aria-current="page"/);
@@ -101,14 +109,14 @@ test('the Essay route uses shared multilingual reader architecture', () => {
 	assert.doesNotMatch(html, /class="site-header"/);
 });
 
-test('Essay TOC comes from the five actual H2 headings and preserves sidebar hierarchy', () => {
+test('Essay TOC comes from the five actual H2 headings without repeating the article title', () => {
 	const html = readPage('/writing/essays/sovereign-driver');
 	const aside = html.match(/<aside class="essay-contents"[\s\S]*?<\/aside>/)?.[0] ?? '';
-	const title = '执炬躬行照长夜，何必低眉候日升';
-	assert.ok(aside.indexOf(title) < aside.indexOf('目录'));
+	assert.doesNotMatch(aside, /essay-contents__title/);
+	assert.match(aside, /essay-contents__label/);
 	assert.equal((aside.match(/data-toc-link/g) ?? []).length, 5);
 	const styles = readFileSync(new URL('../../src/styles/essay.css', import.meta.url), 'utf8');
-	assert.match(styles, /\.essay-contents__title\s*\{[\s\S]*?font-size:\s*0\.875rem/);
+	assert.doesNotMatch(styles, /\.essay-contents__title/);
 	assert.match(styles, /\.essay-contents__link\s*\{[\s\S]*?font-size:\s*0\.8125rem/);
 });
 
@@ -127,7 +135,7 @@ test('About remains a localized hub with Gallery and Hall of Fame child pages', 
 	const text = plainText(extractRegion(about, 'main'));
 	assert.match(about, /href="\/about\/gallery"/);
 	assert.match(about, /href="\/about\/hall-of-fame"/);
-	for (const label of ['Research Interests', '研究兴趣', 'Forschungsinteressen', 'Forking Paths', 'Gallery', 'Hall of Fame']) {
+	for (const label of ['Research Interests', '核心研究领域', 'Forschungsinteressen', 'Forking Paths', 'Gallery', 'Hall of Fame']) {
 		assert.match(text, new RegExp(label));
 	}
 	assert.match(primaryNavigation(readPage('/about/gallery')), /href="\/about" aria-current="page"/);

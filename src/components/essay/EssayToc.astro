@@ -9,12 +9,10 @@ interface Heading {
 
 interface Props {
 	headings: Heading[];
-	locale: string;
-	title: string;
 	mobile?: boolean;
 }
 
-const { headings, locale, title, mobile = false } = Astro.props;
+const { headings, mobile = false } = Astro.props;
 const sectionHeadings = headings.filter(({ depth }) => depth === 2);
 ---
 
@@ -30,7 +28,6 @@ const sectionHeadings = headings.filter(({ depth }) => depth === 2);
 		</details>
 	) : (
 		<aside class="essay-contents" aria-label="Article contents" data-i18n-aria-label="essay.contents">
-			<div class="essay-contents__title" lang={locale}>{title}</div>
 			<div class="essay-contents__label"><LocalizedText key="essay.contents" /></div>
 			<nav>
 				{sectionHeadings.map((heading) => (
