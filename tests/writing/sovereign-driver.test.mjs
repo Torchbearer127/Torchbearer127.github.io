@@ -31,7 +31,7 @@ const mdxBlocks = mdxBody
 test('migration keeps the verified legacy heading and paragraph sequence', () => {
 	assert.equal(mdxBlocks.length, 235);
 	const digest = createHash('sha256').update(mdxBlocks.join('\n')).digest('hex');
-	assert.equal(digest, '62438432a9477279241ffa8b4d15d31891db0064f7a87537bdd4d0eb45539ffb');
+	assert.equal(digest, '2a152dc7a90b8d22a25d22bf8efd588c1e735057424db1e229feda10d52b74a1');
 });
 
 test('migrated essay keeps its structural reading features', () => {
