@@ -54,7 +54,7 @@ const essays = await getPublishedWriting({ type: 'essay', limit: 3 });
 					<LocalizedText key="writing.essays.description" />
 				</p>
 				{essays.length ? (
-					<WritingList entries={essays} variant="essay" />
+					<WritingList entries={essays} variant="essay" rail />
 				) : (
 					<div class="portal-empty"><p><LocalizedText key="writing.essays.empty" /></p></div>
 				)}

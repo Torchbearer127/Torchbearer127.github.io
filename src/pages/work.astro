@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LocalizedContent from '../components/LocalizedContent.astro';
-import { workContent } from '../data/site-content.ts';
+import SelectedProjects from '../components/work/SelectedProjects.astro';
+import { selectedProjects, workContent } from '../data/site-content.ts';
 ---
 
 <BaseLayout
@@ -24,6 +25,7 @@ import { workContent } from '../data/site-content.ts';
 				<section class="work-section" aria-labelledby={section.id}>
 					<h2 id={section.id}><LocalizedContent id={`work-${section.id}-title`} values={section.title} /></h2>
 					<p><LocalizedContent id={`work-${section.id}-description`} values={section.description} /></p>
+					{section.id === 'selected-work' && <SelectedProjects projects={selectedProjects} />}
 				</section>
 			))}
 		</div>
@@ -50,7 +52,7 @@ import { workContent } from '../data/site-content.ts';
 	}
 
 	.work-section h2 {
-		font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+		font-size: clamp(1.75rem, 1.68rem + 0.28vw, 1.875rem);
 		font-weight: 680;
 		letter-spacing: -0.02em;
 	}

@@ -63,9 +63,9 @@ export const workContent = {
 			id: 'selected-work',
 			title: text('Selected Work', '精选项目与系统', 'Ausgewählte Arbeiten'),
 			description: text(
-				'Selected research, engineering work, tools, and reproductions will be documented here.',
-				'精选学术探索、自研安全工具、智能体系统与 SOTA 复现沉淀。',
-				'Ausgewählte Forschung, Engineering-Arbeiten, Werkzeuge und Reproduktionen werden hier dokumentiert.',
+				'Selected research explorations, independently developed security tools, and agent systems built in collaboration.',
+				'精选学术探索、自研安全工具与参与构建的智能体系统。',
+				'Ausgewählte Forschungsarbeiten, eigenständig entwickelte Sicherheitswerkzeuge und gemeinsam entwickelte Agentensysteme.',
 			),
 		},
 		{
@@ -79,6 +79,60 @@ export const workContent = {
 		},
 	],
 };
+
+export interface SelectedProject {
+	id: string;
+	name: LocalizedString;
+	meta: LocalizedString;
+	description: LocalizedString;
+	milestone?: LocalizedString;
+	href?: string;
+}
+
+export const selectedProjects = [
+	{
+		id: 'zhulong',
+		name: text('Zhulong', '烛龙', 'Zhulong'),
+		meta: text('Independent / Open Source', '独立开发 / 开源项目', 'Eigenentwicklung / Open Source'),
+		description: text(
+			'A modular security code-audit workflow for local coding agents, connecting candidate discovery, Docker-backed reproduction, and evidence packaging into a verification-first loop.',
+			'面向本地 Coding Agent 的模块化安全代码审计工作流。将漏洞候选发现、Docker 运行时复现与证据打包串成闭环，只在证据充分后确认并交付漏洞。',
+			'Ein modularer Security-Code-Audit-Workflow für lokale Coding Agents, der Kandidatenfindung, Docker-gestützte Reproduktion und Evidenzaufbereitung zu einem verifikationsorientierten Ablauf verbindet.',
+		),
+		milestone: text(
+			'30+ CVE / CNVD identifiers obtained through Zhulong',
+			'已通过烛龙获得 30+ CVE / CNVD 编号',
+			'Über Zhulong wurden bereits 30+ CVE-/CNVD-Kennungen erhalten',
+		),
+		href: 'https://github.com/Torchbearer127/zhulong',
+	},
+	{
+		id: 'zhiyan',
+		name: text('ZhiYan', '知演', 'ZhiYan'),
+		meta: text('Team-built / Open-source Archive', '团队共建 / 开源归档', 'Teamprojekt / Open-Source-Archiv'),
+		description: text(
+			'An AI-powered presentation system covering the workflow from source material and outline planning to content generation, editing, preview, and export.',
+			'面向演示文稿生产场景的 AI PPT 生成系统。围绕素材整理、大纲规划、内容生成、编辑预览与导出分享，构建完整的 AI 辅助演示创作链路。',
+			'Ein KI-gestütztes Präsentationssystem, das den Workflow von Materialaufbereitung und Gliederungsplanung bis zu Inhaltserzeugung, Bearbeitung, Vorschau und Export abdeckt.',
+		),
+		milestone: text(
+			"First Prize in the Final of HUST's 1st Creative AI Agent Campus Development Competition",
+			'华中科技大学首届创意 AI 智能体校园开发大赛决赛一等奖',
+			'1. Preis im Finale des ersten Campus-Wettbewerbs „Creative AI Agent“ der Huazhong University of Science and Technology',
+		),
+		href: 'https://github.com/proto-commons/ZhiYan-Legacy',
+	},
+	{
+		id: 'flovvas',
+		name: text('Flovvas', 'Flovvas', 'Flovvas'),
+		meta: text('Team-built / Closed Source', '团队共建 / 闭源作品', 'Teamprojekt / Closed Source'),
+		description: text(
+			'A visual AI workspace built on an infinite canvas, turning the canvas into a context-bearing space that carries ideas from exploration toward practice.',
+			'建立在无限画布上的思路可视化 AI 工作台。让画布成为能够承载上下文的空间，把一个想法从探索持续带向实践。',
+			'Ein visueller KI-Arbeitsraum auf einer unendlichen Leinwand, die Kontext tragen und Ideen von der Exploration bis zur praktischen Umsetzung begleiten kann.',
+		),
+	},
+] satisfies SelectedProject[];
 
 export const aboutContent = {
 	eyebrow: text('Identity', '个人概览', 'Identität'),

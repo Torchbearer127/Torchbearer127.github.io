@@ -1,0 +1,172 @@
+---
+import LocalizedContent from '../LocalizedContent.astro';
+import type { SelectedProject } from '../../data/site-content.ts';
+
+interface Props {
+	projects: SelectedProject[];
+}
+
+const { projects } = Astro.props;
+---
+
+<div class="project-list">
+	{projects.map((project) => (
+		<article class="project-item" data-project-id={project.id}>
+			<header class="project-header">
+				<h3 class="project-name">
+					<LocalizedContent id={`project-${project.id}-name`} values={project.name} />
+				</h3>
+				<p class="project-meta">
+					<LocalizedContent id={`project-${project.id}-meta`} values={project.meta} />
+				</p>
+			</header>
+
+			<p class="project-description">
+				<LocalizedContent id={`project-${project.id}-description`} values={project.description} />
+			</p>
+
+			{project.milestone && (
+				<p class="project-milestone">
+					<span class="project-milestone__mark" aria-hidden="true"></span>
+					<LocalizedContent id={`project-${project.id}-milestone`} values={project.milestone} />
+				</p>
+			)}
+
+			{project.href && (
+				<p class="project-actions">
+					<a
+						class="project-link"
+						href={project.href}
+						target="_blank"
+						rel="noreferrer"
+						aria-label={`Open ${project.name.en} on GitHub`}
+					>
+						GitHub <span aria-hidden="true">↗</span>
+					</a>
+				</p>
+			)}
+		</article>
+	))}
+</div>
+
+<style>
+	.project-list {
+		position: relative;
+		margin-top: clamp(1.75rem, 4vw, 2.25rem);
+		margin-inline-start: 0.2rem;
+		padding-inline-start: clamp(1rem, 3vw, 2rem);
+		border-inline-start: 1px solid var(--color-border-subtle);
+	}
+
+	.project-list::before {
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-start: -1px;
+		width: 2px;
+		height: 1.5rem;
+		background: var(--color-accent);
+		content: "";
+	}
+
+	.project-item {
+		padding-block: clamp(2rem, 5vw, 2.75rem);
+		display: grid;
+		gap: var(--space-4);
+	}
+
+	.project-item + .project-item {
+		border-top: 1px solid var(--color-border-subtle);
+	}
+
+	.project-header {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-6);
+	}
+
+	.project-name,
+	.project-meta,
+	.project-description,
+	.project-milestone,
+	.project-actions {
+		margin: 0;
+	}
+
+	.project-name {
+		font-size: clamp(1.375rem, 1.3rem + 0.3vw, 1.5rem);
+		font-weight: 650;
+		letter-spacing: -0.025em;
+	}
+
+	.project-meta {
+		flex: 0 1 auto;
+		color: var(--color-text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1.55;
+		text-align: end;
+	}
+
+	.project-description {
+		max-width: 42rem;
+		color: var(--color-text-muted);
+		line-height: 1.75;
+	}
+
+	.project-milestone {
+		display: flex;
+		align-items: baseline;
+		gap: var(--space-2);
+		color: var(--color-text-muted);
+		font-size: 0.8125rem;
+		font-weight: 550;
+		line-height: 1.6;
+	}
+
+	.project-milestone__mark {
+		width: 0.35rem;
+		height: 0.35rem;
+		flex: none;
+		border-radius: 999px;
+		background: var(--color-ember);
+	}
+
+	.project-actions {
+		font-size: 0.875rem;
+		font-weight: 650;
+	}
+
+	.project-link {
+		color: var(--color-accent);
+	}
+
+	@media (hover: hover) {
+		.project-link:hover {
+			color: var(--color-accent-hover);
+		}
+	}
+
+	@media (max-width: 44rem) {
+		.project-list {
+			margin-inline-start: 0.05rem;
+			padding-inline-start: 1rem;
+		}
+
+		.project-item {
+			padding-block: 1.75rem;
+			gap: var(--space-3);
+		}
+
+		.project-header {
+			align-items: start;
+			flex-direction: column;
+			gap: var(--space-2);
+		}
+
+		.project-meta {
+			text-align: start;
+		}
+	}
+</style>

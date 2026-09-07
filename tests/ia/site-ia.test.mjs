@@ -71,6 +71,27 @@ test('Work keeps the planned hierarchy in all three structured locales', () => {
 	assert.match(primaryNavigation(html), /href="\/work" aria-current="page"/);
 });
 
+test('Selected Work renders one multilingual project roster with only public repository actions', () => {
+	const html = extractRegion(readPage('/work'), 'main');
+	const projectIds = [...html.matchAll(/data-project-id="([^"]+)"/g)].map((match) => match[1]);
+	assert.deepEqual(projectIds, ['zhulong', 'zhiyan', 'flovvas']);
+	assert.equal((html.match(/class="project-milestone"/g) ?? []).length, 2);
+
+	for (const id of projectIds) {
+		assert.match(html, new RegExp(`data-content-group="project-${id}-name"[^>]*data-available-locales="zh-CN,en,de"`));
+		assert.match(html, new RegExp(`data-content-group="project-${id}-meta"[^>]*data-available-locales="zh-CN,en,de"`));
+		assert.match(html, new RegExp(`data-content-group="project-${id}-description"[^>]*data-available-locales="zh-CN,en,de"`));
+	}
+	assert.match(html, /data-content-group="project-zhulong-name"[\s\S]*?data-content-copy="zh-CN"[^>]*>烛龙<\/span>/);
+	assert.match(html, /data-content-group="project-zhiyan-name"[\s\S]*?data-content-copy="zh-CN"[^>]*>知演<\/span>/);
+	assert.match(html, /data-content-group="project-flovvas-name"[\s\S]*?data-content-copy="zh-CN"[^>]*>Flovvas<\/span>/);
+
+	assert.match(html, /href="https:\/\/github\.com\/Torchbearer127\/zhulong" target="_blank" rel="noreferrer"/);
+	assert.match(html, /href="https:\/\/github\.com\/proto-commons\/ZhiYan-Legacy" target="_blank" rel="noreferrer"/);
+	const flovvas = html.match(/<article\b[^>]*data-project-id="flovvas"[^>]*>([\s\S]*?)<\/article>/)?.[1] ?? '';
+	assert.doesNotMatch(flovvas, /project-milestone|<a\b/);
+});
+
 test('Writing remains one hub with entity-aware Research Notes and Essays archives', () => {
 	const writing = extractRegion(readPage('/writing'), 'main');
 	const notes = extractRegion(readPage('/writing/research-notes'), 'main');
@@ -80,6 +101,13 @@ test('Writing remains one hub with entity-aware Research Notes and Essays archiv
 	assert.match(plainText(notes), /Research Notes/);
 	assert.match(plainText(essays), /Essays/);
 	assert.match(primaryNavigation(readPage('/writing/essays')), /href="\/writing" aria-current="page"/);
+});
+
+test('Writing hub nests essay entries beneath their parent section', () => {
+	const writing = extractRegion(readPage('/writing'), 'main');
+	const essayPortal = writing.match(/<section class="writing-portal writing-portal--essays"[\s\S]*?<\/section>/)?.[0] ?? '';
+	assert.match(essayPortal, /class="writing-list writing-list--essay writing-list--rail"/);
+	assert.match(essayPortal, /href="\/writing\/essays\/sovereign-driver"/);
 });
 
 test('sovereign-driver is one discoverable neutral entity route', () => {
