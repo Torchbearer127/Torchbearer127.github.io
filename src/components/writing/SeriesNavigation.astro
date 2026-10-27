@@ -1,0 +1,19 @@
+---
+import { getWritingHref, resolveWritingVariant, type WritingEntity } from '../../lib/writing.ts';
+import type { SupportedLocale } from '../../i18n/locales.ts';
+interface Props { entity: WritingEntity; entries: WritingEntity[]; locale: SupportedLocale }
+const {entity, entries, locale}=Astro.props;
+const current=entries.findIndex((entry)=>entry.id===entity.id);
+const previous=entries[current-1]; const next=entries[current+1];
+---
+{entity.data.series && entries.length > 1 && <nav class="series-navigation" aria-label={entity.data.series.title}>
+ <p class="series-navigation__title">{entity.data.series.title}</p>
+ <ol>{entries.map((entry)=><li><a href={getWritingHref(entry)} aria-current={entry.id===entity.id?'page':undefined}>
+  <span class="series-navigation__number">Part {String(entry.data.series!.order).padStart(2,'0')}</span>
+  <span>{resolveWritingVariant(entry,locale).title.split(' · ').at(-1)}</span>
+ </a></li>)}</ol>
+ <div class="series-navigation__adjacent">
+  {previous && <a href={getWritingHref(previous)}>← 上一篇 · Part {String(previous.data.series!.order).padStart(2,'0')}</a>}
+  {next && <a href={getWritingHref(next)}>下一篇 · Part {String(next.data.series!.order).padStart(2,'0')} →</a>}
+ </div>
+</nav>}

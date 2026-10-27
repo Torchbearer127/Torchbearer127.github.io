@@ -1,5 +1,5 @@
 ---
-import type { WritingEntity, WritingType } from '../../lib/writing';
+import { groupWritingEntries, type WritingEntity, type WritingType } from '../../lib/writing';
 import LocalizedText from '../LocalizedText.astro';
 import WritingList from './WritingList.astro';
 
@@ -11,7 +11,8 @@ interface Props {
 }
 
 const { title, description, type, entries } = Astro.props;
-const years = [...new Set(entries.map((entry) => entry.data.date.getFullYear()))];
+const groups = groupWritingEntries(entries);
+const years = [...new Set(groups.map((group) => group.date.getFullYear()))];
 const labelKey = type === 'research-note' ? 'writing.notes.label' : 'writing.essays.label';
 const titleKey = type === 'research-note' ? 'writing.notes.title' : 'writing.essays.title';
 const descriptionKey = type === 'research-note' ? 'writing.notes.description' : 'writing.essays.description';
@@ -32,7 +33,7 @@ const emptyKey = type === 'research-note' ? 'writing.notes.empty' : 'writing.ess
 			{years.map((year) => (
 				<section class="year-group" aria-labelledby={`year-${year}`}>
 					<h2 id={`year-${year}`}>{year}</h2>
-					<WritingList entries={entries.filter((entry) => entry.data.date.getFullYear() === year)} variant={type} />
+					<WritingList entries={groups.filter((group) => group.date.getFullYear() === year).flatMap((group) => group.entries)} variant={type} rail={type === 'research-note'} />
 				</section>
 			))}
 		</div>

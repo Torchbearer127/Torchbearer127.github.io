@@ -4,8 +4,8 @@ import LocalizedText from '../../components/LocalizedText.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPublishedWriting } from '../../lib/writing';
 
-const researchNotes = await getPublishedWriting({ type: 'research-note', limit: 3 });
-const essays = await getPublishedWriting({ type: 'essay', limit: 3 });
+const researchNotes = await getPublishedWriting({ type: 'research-note' });
+const essays = await getPublishedWriting({ type: 'essay' });
 ---
 
 <BaseLayout
@@ -36,7 +36,7 @@ const essays = await getPublishedWriting({ type: 'essay', limit: 3 });
 					<LocalizedText key="writing.notes.description" />
 				</p>
 				{researchNotes.length ? (
-					<WritingList entries={researchNotes} variant="research-note" />
+					<WritingList entries={researchNotes} variant="research-note" rail limit={3} />
 				) : (
 					<div class="portal-empty"><p><LocalizedText key="writing.notes.empty" /></p></div>
 				)}
@@ -54,7 +54,7 @@ const essays = await getPublishedWriting({ type: 'essay', limit: 3 });
 					<LocalizedText key="writing.essays.description" />
 				</p>
 				{essays.length ? (
-					<WritingList entries={essays} variant="essay" rail />
+					<WritingList entries={essays} variant="essay" rail limit={3} />
 				) : (
 					<div class="portal-empty"><p><LocalizedText key="writing.essays.empty" /></p></div>
 				)}

@@ -1,8 +1,10 @@
 ---
 import { render } from 'astro:content';
+import EssayLayout from '../../../layouts/EssayLayout.astro';
 import ResearchNoteLayout from '../../../layouts/ResearchNoteLayout.astro';
 import {
 	getPublishedWriting,
+	getWritingSeries,
 	getWritingSlug,
 	type WritingEntity,
 } from '../../../lib/writing.ts';
@@ -11,19 +13,22 @@ export async function getStaticPaths() {
 	const entities = await getPublishedWriting({ type: 'research-note' });
 	return entities.map((entity) => ({
 		params: { slug: getWritingSlug(entity) },
-		props: { entity },
+		props: { entity, series: getWritingSeries(entity, entities) },
 	}));
 }
 
 interface Props {
 	entity: WritingEntity;
+	series: WritingEntity[];
 }
 
-const { entity } = Astro.props;
+const { entity, series } = Astro.props;
 const variants = await Promise.all(entity.availableLocales.map(async (locale) => {
-	const { Content } = await render(entity.variants[locale]!.entry);
-	return { locale, Content };
+	const { Content, headings } = await render(entity.variants[locale]!.entry);
+	return { locale, Content, headings };
 }));
 ---
 
-<ResearchNoteLayout entity={entity} variants={variants} />
+{entity.data.series
+	? <EssayLayout entity={entity} variants={variants} series={series} />
+	: <ResearchNoteLayout entity={entity} variants={variants} />}

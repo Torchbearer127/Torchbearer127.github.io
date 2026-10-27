@@ -2,6 +2,7 @@
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import type { SupportedLocale } from '../../i18n/locales.ts';
 import type { WritingEntity } from '../../lib/writing.ts';
+import SeriesNavigation from '../writing/SeriesNavigation.astro';
 import EssayToc from './EssayToc.astro';
 
 interface Heading {
@@ -16,10 +17,15 @@ interface Props {
 	Content: AstroComponentFactory;
 	headings: Heading[];
 	active: boolean;
+	series?: WritingEntity[];
 }
 
-const { entity, locale, Content, headings, active } = Astro.props;
+const { entity, locale, Content, headings, active, series = [] } = Astro.props;
 const variant = entity.variants[locale]!;
+const ccscPart = entity.data.series?.id === 'ccsc-2026'
+	? ['其一', '其二', '其三'][entity.data.series.order - 1]
+	: undefined;
+const ccscSubject = variant.title.split(' · ').slice(1).join(' · ');
 ---
 
 <section
@@ -35,17 +41,21 @@ const variant = entity.variants[locale]!;
 		<EssayToc headings={headings} mobile />
 	</div>
 	<div class="essay-grid">
-		<EssayToc headings={headings} />
+		<EssayToc headings={headings} compact={entity.data.series?.id === 'ccsc-2026'} />
 		<section class="article-paper">
-			<article class="essay-article" data-essay-article lang={locale}>
+			<article class:list={['essay-article', {'essay-article--research-note': entity.type === 'research-note'}]} data-essay-article lang={locale}>
 				<header class="essay-article__header">
-					<h1>{variant.title}</h1>
+					<h1>{ccscPart ? <>
+						<span class="essay-article__title-line">{entity.data.series!.title} {ccscPart}：</span>
+						<span class="essay-article__title-line">{ccscSubject}</span>
+					</> : variant.title}</h1>
 					<p class="essay-article__meta">
 						<span class="essay-article__author">执炬人 / <span translate="no">Torchbearer127</span></span><br />
-						<span>{variant.description}</span><br />
-						<time datetime={entity.data.date.toISOString()}>{entity.data.dateLabel ?? entity.data.date.getFullYear()}</time>
+						<span>{variant.description}</span>
+						{!ccscPart && <><br /><time datetime={entity.data.date.toISOString()}>{entity.data.dateLabel ?? entity.data.date.getFullYear()}</time></>}
 					</p>
 				</header>
+				<SeriesNavigation entity={entity} entries={series} locale={locale} />
 				<Content />
 			</article>
 		</section>

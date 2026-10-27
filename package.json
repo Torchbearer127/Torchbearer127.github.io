@@ -8,13 +8,22 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-		"test": "node --test tests/motion/*.test.mjs tests/ia/*.test.mjs tests/i18n/*.test.mjs tests/writing/*.test.mjs",
-		"test:browser": "node tests/browser/motion-contract.mjs && node tests/browser/multilingual-essay.mjs",
+    "test": "node --test tests/motion/*.test.mjs tests/ia/*.test.mjs tests/i18n/*.test.mjs tests/writing/*.test.mjs",
+    "test:browser": "node tests/browser/motion-contract.mjs && node tests/browser/multilingual-essay.mjs",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "build:drafts": "astro build --mode draft-preview",
+    "test:browser:ccsc": "node tests/browser/ccsc-adaptation.cjs"
   },
   "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.2",
     "@astrojs/mdx": "^7.0.8",
-    "astro": "^7.2.1"
+    "astro": "^7.2.1",
+    "katex": "^0.16.47",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
   }
 }

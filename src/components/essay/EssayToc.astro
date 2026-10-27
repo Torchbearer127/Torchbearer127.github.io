@@ -10,9 +10,10 @@ interface Heading {
 interface Props {
 	headings: Heading[];
 	mobile?: boolean;
+	compact?: boolean;
 }
 
-const { headings, mobile = false } = Astro.props;
+const { headings, mobile = false, compact = false } = Astro.props;
 const sectionHeadings = headings.filter(({ depth }) => depth === 2);
 ---
 
@@ -27,12 +28,12 @@ const sectionHeadings = headings.filter(({ depth }) => depth === 2);
 			</nav>
 		</details>
 	) : (
-		<aside class="essay-contents" aria-label="Article contents" data-i18n-aria-label="essay.contents">
+		<aside class:list={['essay-contents', { 'essay-contents--compact': compact }]} aria-label="Article contents" data-i18n-aria-label="essay.contents">
 			<div class="essay-contents__label"><LocalizedText key="essay.contents" /></div>
 			<nav>
 				{sectionHeadings.map((heading) => (
-					<a class="essay-contents__link" href={`#${heading.slug}`} data-toc-link data-heading-slug={heading.slug}>
-						{heading.text}
+					<a class="essay-contents__link" href={`#${heading.slug}`} title={compact ? heading.text : undefined} aria-label={compact ? heading.text : undefined} data-toc-link data-heading-slug={heading.slug}>
+						{compact ? heading.text.split('：')[0] : heading.text}
 					</a>
 				))}
 			</nav>

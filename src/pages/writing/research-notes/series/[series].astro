@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import LocalizedText from '../../../../components/LocalizedText.astro';
+import WritingList from '../../../../components/writing/WritingList.astro';
+import {getPublishedWriting, groupWritingEntries, type WritingEntity} from '../../../../lib/writing.ts';
+import type {WritingListGroup} from '../../../../lib/writing-types.ts';
+
+export async function getStaticPaths() {
+ const groups=groupWritingEntries(await getPublishedWriting({type:'research-note'}));
+ return groups.filter(group=>group.series).map(group=>({params:{series:group.series!.id},props:{group}}));
+}
+interface Props {group:WritingListGroup<WritingEntity>}
+const {group}=Astro.props;
+const title=group.series!.title;
+const description=`本系列共 ${group.entries.length} 篇，按以下顺序阅读。`;
+---
+<BaseLayout title={`${title} — 执炬人`} description={description}>
+ <div class="page-shell series-overview" lang={group.entries[0].originalLocale}>
+  <a class="context-link" href="/writing/research-notes"><span aria-hidden="true">←</span> <LocalizedText key="common.backNotes" /></a>
+  <header class="page-intro">
+   <p class="page-eyebrow"><LocalizedText key="note.type" /></p>
+   <h1 class="page-title">{title}</h1>
+   <p class="page-description">{description}</p>
+  </header>
+  <section class="series-overview__parts" aria-label="系列文章">
+   <WritingList entries={group.entries} variant="research-note" groupSeries={false} />
+  </section>
+ </div>
+</BaseLayout>
+<style>
+ .series-overview .page-intro {margin-top:var(--space-8);}
+ .series-overview__parts {max-width:var(--layout-prose-max);margin-top:var(--space-12);}
+</style>

@@ -10,6 +10,8 @@ import type {
 	WritingEntryLike,
 	WritingType,
 	WritingVariant,
+	WritingListGroup,
+	WritingSeries,
 } from './writing-types.ts';
 
 const typeByRoot = {
@@ -30,6 +32,7 @@ const sharedFields = [
 	'updated',
 	'featured',
 	'noteKind',
+	'series',
 ] as const;
 
 interface Candidate<TEntry extends WritingEntryLike> {
@@ -72,6 +75,7 @@ function sharedData(entry: WritingEntryLike): SharedWritingData {
 		updated: entry.data.updated,
 		featured: entry.data.featured,
 		noteKind: entry.data.noteKind,
+		series: entry.data.series,
 	};
 }
 
@@ -138,7 +142,49 @@ export function assembleWritingEntities<TEntry extends WritingEntryLike>(entries
 		});
 	}
 
+	const positions = new Set<string>();
+	for (const entity of entities) {
+		if (!entity.data.series) continue;
+		const { id, order } = entity.data.series;
+		const key = `${id}/${order}`;
+		if (positions.has(key)) throw new Error(`Duplicate series order: ${key}`);
+		positions.add(key);
+	}
 	return entities.sort(compareWritingEntities);
+}
+
+export function getWritingSeries<T extends WritingEntity>(entity: T, entities: T[]): T[] {
+	if (!entity.data.series) return [];
+	return entities
+		.filter((candidate) => candidate.data.series?.id === entity.data.series!.id)
+		.sort((a, b) => a.data.series!.order - b.data.series!.order);
+}
+
+export function isWritingVisible(entity: WritingEntity, previewDrafts = false): boolean {
+	return !entity.data.draft || (previewDrafts && Boolean(entity.data.series));
+}
+
+export function groupWritingEntries<T extends WritingEntity>(entries: T[], groupSeries = true): WritingListGroup<T>[] {
+	const groups = new Map<string, WritingListGroup<T>>();
+	for (const entry of entries) {
+		const series = groupSeries && entry.type === 'research-note' ? entry.data.series : undefined;
+		const id = series ? `${entry.type}/series/${series.id}` : entry.id;
+		const group = groups.get(id);
+		if (group) {
+			group.entries.push(entry);
+			if (entry.data.date > group.date) group.date = entry.data.date;
+		} else {
+			groups.set(id, {id, type: entry.type, date: entry.data.date, series, entries: [entry]});
+		}
+	}
+	const result = [...groups.values()].map((group) => ({...group,
+		entries: [...group.entries].sort((a, b) => (a.data.series?.order ?? 0) - (b.data.series?.order ?? 0)),
+	}));
+	return groupSeries ? result.sort((a, b) => b.date.getTime() - a.date.getTime() || a.id.localeCompare(b.id)) : result;
+}
+
+export function getWritingSeriesHref(series: WritingSeries, type: WritingType): string {
+	return `/writing/${rootByType[type]}/series/${encodeURIComponent(series.id)}`;
 }
 
 export function compareWritingEntities(a: WritingEntity, b: WritingEntity) {

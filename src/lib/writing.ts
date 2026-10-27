@@ -5,6 +5,10 @@ import {
 	getWritingHref,
 	getWritingSlug,
 	resolveWritingVariant,
+	getWritingSeries,
+	isWritingVisible,
+	groupWritingEntries,
+	getWritingSeriesHref,
 } from './writing-entities.ts';
 import type {
 	WritingEntity as BaseWritingEntity,
@@ -14,7 +18,7 @@ import type {
 export type WritingEntry = CollectionEntry<'writing'>;
 export type WritingEntity = BaseWritingEntity<WritingEntry>;
 export type { WritingType } from './writing-types.ts';
-export { getWritingHref, getWritingSlug, resolveWritingVariant };
+export { getWritingHref, getWritingSlug, resolveWritingVariant, getWritingSeries, groupWritingEntries, getWritingSeriesHref };
 
 export const writingTypeLabels: Record<WritingType, string> = {
 	'research-note': 'Research Note',
@@ -42,7 +46,7 @@ export async function getWritingEntities() {
 
 export async function getPublishedWriting({ type, limit }: WritingQuery = {}) {
 	const entities = (await getWritingEntities()).filter((entity) => {
-		return !entity.data.draft && (!type || entity.type === type);
+		return isWritingVisible(entity, import.meta.env.MODE === 'draft-preview') && (!type || entity.type === type);
 	});
 
 	return typeof limit === 'number' ? entities.slice(0, limit) : entities;

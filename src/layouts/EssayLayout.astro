@@ -11,6 +11,7 @@ import {
 	type WritingEntity,
 } from '../lib/writing.ts';
 import '../styles/essay.css';
+import '../styles/research-note.css';
 import BaseLayout from './BaseLayout.astro';
 
 interface RenderedVariant {
@@ -22,9 +23,10 @@ interface RenderedVariant {
 interface Props {
 	entity: WritingEntity;
 	variants: RenderedVariant[];
+	series?: WritingEntity[];
 }
 
-const { entity, variants } = Astro.props;
+const { entity, variants, series = [] } = Astro.props;
 const defaultVariant = resolveWritingVariant(entity, 'en');
 const pageTitles = Object.fromEntries(
 	entity.availableLocales.map((locale) => [locale, `${entity.variants[locale]!.title} — 执炬人`]),
@@ -46,7 +48,7 @@ const pageDescriptions = Object.fromEntries(
 	<ReadingProgress />
 	<header class="essay-topbar">
 		<div class="essay-topbar__inner">
-			<a class="essay-back" href="/writing/essays"><span aria-hidden="true">←</span> <LocalizedText key="common.backEssays" /></a>
+			<a class="essay-back" href={entity.type === 'research-note' ? '/writing/research-notes' : '/writing/essays'}><span aria-hidden="true">←</span> <LocalizedText key={entity.type === 'research-note' ? 'common.backNotes' : 'common.backEssays'} /></a>
 			<div
 				class="essay-topbar__title"
 				data-content-group={entity.id}
@@ -78,6 +80,7 @@ const pageDescriptions = Object.fromEntries(
 		{variants.map((variant) => (
 			<EssayVariant
 				entity={entity}
+				series={series}
 				locale={variant.locale}
 				Content={variant.Content}
 				headings={variant.headings}

@@ -20,6 +20,11 @@ const writing = defineCollection({
 		noteKind: z
 			.enum(['reproduction', 'experiment', 'reading', 'implementation', 'idea', 'case-study'])
 			.optional(),
+		series: z.object({
+			id: z.string().min(1),
+			title: z.string().min(1),
+			order: z.number().int().positive(),
+		}).optional(),
 	}),
 });
 

@@ -9,6 +9,12 @@ export type NoteKind =
 	| 'idea'
 	| 'case-study';
 
+export interface WritingSeries {
+	id: string;
+	title: string;
+	order: number;
+}
+
 export interface WritingEntryData {
 	title: string;
 	description: string;
@@ -20,6 +26,7 @@ export interface WritingEntryData {
 	updated?: Date;
 	featured?: boolean;
 	noteKind?: NoteKind;
+	series?: WritingSeries;
 }
 export interface WritingEntryLike {
 	id: string;
@@ -34,6 +41,7 @@ export interface SharedWritingData {
 	updated?: Date;
 	featured?: boolean;
 	noteKind?: NoteKind;
+	series?: WritingSeries;
 }
 
 export interface WritingVariant<TEntry extends WritingEntryLike = WritingEntryLike> {
@@ -51,4 +59,12 @@ export interface WritingEntity<TEntry extends WritingEntryLike = WritingEntryLik
 	availableLocales: SupportedLocale[];
 	variants: Partial<Record<SupportedLocale, WritingVariant<TEntry>>>;
 	data: SharedWritingData;
+}
+
+export interface WritingListGroup<T extends WritingEntity = WritingEntity> {
+	id: string;
+	type: WritingType;
+	date: Date;
+	series?: WritingSeries;
+	entries: T[];
 }
