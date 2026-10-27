@@ -100,9 +100,9 @@ export const selectedProjects = [
 			'Ein modularer Security-Code-Audit-Workflow für lokale Coding Agents, der Kandidatenfindung, Docker-gestützte Reproduktion und Evidenzaufbereitung zu einem verifikationsorientierten Ablauf verbindet.',
 		),
 		milestone: text(
-			'30+ CVE / CNVD identifiers obtained through Zhulong',
-			'已通过烛龙获得 30+ CVE / CNVD 编号',
-			'Über Zhulong wurden bereits 30+ CVE-/CNVD-Kennungen erhalten',
+			'40+ CVE / CNVD identifiers obtained through Zhulong',
+			'已通过烛龙获得 40+ CVE / CNVD 编号',
+			'Über Zhulong wurden bereits 40+ CVE-/CNVD-Kennungen erhalten',
 		),
 		href: 'https://github.com/Torchbearer127/zhulong',
 	},
