@@ -51,7 +51,7 @@ const groups = groupWritingEntries(entries, groupSeries).slice(0, limit);
 							{isCcscEntry ? <span lang="zh-CN">会议笔记</span> : noteKind ? typeLabel : <LocalizedText key={entity.type === 'essay' ? 'essay.type' : 'note.type'} />}
 						</span>
 						<time datetime={isCcscEntry ? '2026-09' : group.date.toISOString()}>
-							{isCcscEntry ? '2026/9' : latest.data.dateLabel ?? formatWritingDate(group.date)}
+							{isCcscEntry ? '2026/09' : latest.data.dateLabel ?? formatWritingDate(group.date)}
 						</time>
 						{series && <span lang={entity.originalLocale}>{isCcscSeries ? `· 共 ${group.entries.length} 篇` : `${group.entries.length} ${{'zh-CN':'篇', en:'parts', de:'Teile'}[entity.originalLocale]}`}</span>}
 					</div>
