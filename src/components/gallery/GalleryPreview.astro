@@ -1,0 +1,26 @@
+---
+import type { GalleryItem } from '../../data/gallery';
+import GalleryImage from './GalleryImage.astro';
+interface Props { items: GalleryItem[] }
+const { items } = Astro.props;
+const slots = ([1, 2, 3] as const).map((slot) => items.find((item) => item.aboutPreview === slot));
+---
+
+<div class="gallery-preview">
+	{slots.map((item, index) => (
+		<div class:list={['gallery-preview__slot', `gallery-preview__slot--${index + 1}`, { 'gallery-preview__slot--empty': !item }]} aria-hidden={item ? undefined : 'true'}>
+			{item && <GalleryImage item={item} preview />}
+		</div>
+	))}
+</div>
+
+<style>
+	.gallery-preview { margin-top: var(--space-6); display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1fr); gap: var(--space-2); align-items: center; }
+	.gallery-preview__slot { min-width: 0; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 0.25rem; }
+	.gallery-preview__slot--2 { aspect-ratio: 3 / 4; }
+	.gallery-preview__slot--empty { border: 1px solid var(--color-border-subtle); background: var(--color-surface-subtle); }
+	@media (max-width: 40rem) {
+		.gallery-preview { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); }
+		.gallery-preview__slot--3 { grid-column: 1 / -1; aspect-ratio: 16 / 7; }
+	}
+</style>

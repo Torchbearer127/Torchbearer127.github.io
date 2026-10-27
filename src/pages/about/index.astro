@@ -2,6 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LocalizedContent from '../../components/LocalizedContent.astro';
 import { aboutContent } from '../../data/site-content.ts';
+import { galleryItems } from '../../data/gallery';
+import GalleryPreview from '../../components/gallery/GalleryPreview.astro';
 ---
 
 <BaseLayout
@@ -52,10 +54,8 @@ import { aboutContent } from '../../data/site-content.ts';
 				<h2 id="gallery-title"><LocalizedContent id="about-gallery-title" values={aboutContent.galleryTitle} /></h2>
 				<a href="/about/gallery"><LocalizedContent id="about-gallery-explore" values={aboutContent.galleryExplore} /> <span aria-hidden="true">→</span></a>
 			</div>
-			<div class="gallery-preview" aria-hidden="true">
-				<span></span><span></span><span></span>
-			</div>
 			<p><LocalizedContent id="about-gallery-description" values={aboutContent.galleryDescription} /></p>
+			<GalleryPreview items={galleryItems} />
 		</section>
 
 		<section class="about-preview about-preview--hall" id="hall-of-fame" aria-labelledby="hall-of-fame-title">
@@ -161,23 +161,6 @@ import { aboutContent } from '../../data/site-content.ts';
 	.elsewhere a {
 		color: var(--color-accent);
 		font-size: 0.875rem;
-	}
-
-	.gallery-preview {
-		margin-top: var(--space-6);
-		display: grid;
-		grid-template-columns: 1.2fr 0.8fr 1fr;
-		gap: var(--space-2);
-	}
-
-	.gallery-preview span {
-		min-height: clamp(4.5rem, 13vw, 7.5rem);
-		border: 1px solid var(--color-border-subtle);
-		background: var(--color-surface-subtle);
-	}
-
-	.gallery-preview span:nth-child(2) {
-		transform: translateY(var(--space-4));
 	}
 
 	.milestone-preview {

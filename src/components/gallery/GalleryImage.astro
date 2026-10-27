@@ -1,0 +1,35 @@
+---
+import type { GalleryItem } from '../../data/gallery';
+import { localize } from '../../i18n/content';
+import { SUPPORTED_LOCALES } from '../../i18n/locales';
+
+interface Props {
+	item: GalleryItem;
+	preview?: boolean;
+	loading?: 'eager' | 'lazy';
+}
+const { item, preview = false, loading = 'lazy' } = Astro.props;
+const available = SUPPORTED_LOCALES.filter((locale) => Boolean(item.alt[locale]));
+const position = item.previewPosition ?? { x: 50, y: 50 };
+---
+
+<img
+	src={item.src}
+	alt={localize(item.alt, 'en')}
+	width={item.width}
+	height={item.height}
+	loading={loading}
+	decoding="async"
+	class:list={{ 'gallery-image--preview': preview }}
+	style={preview ? `object-position: ${position.x}% ${position.y}%` : undefined}
+	data-content-group={`gallery-${preview ? 'preview' : 'archive'}-${item.id}-alt`}
+	data-available-locales={available.join(',')}
+	data-original-locale="en"
+	data-ui-localized
+	data-content-alt={JSON.stringify(item.alt)}
+/>
+
+<style>
+	img { display: block; width: 100%; height: auto; border-radius: 0.25rem; }
+	.gallery-image--preview { height: 100%; object-fit: cover; }
+</style>

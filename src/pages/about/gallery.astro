@@ -3,6 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import LocalizedContent from '../../components/LocalizedContent.astro';
 import LocalizedText from '../../components/LocalizedText.astro';
 import { collectionContent } from '../../data/site-content.ts';
+import { galleryItems } from '../../data/gallery';
+import GalleryGrid from '../../components/gallery/GalleryGrid.astro';
 ---
 
 <BaseLayout
@@ -20,9 +22,9 @@ import { collectionContent } from '../../data/site-content.ts';
 				<LocalizedContent id="gallery-description" values={collectionContent.gallery.description} />
 			</p>
 		</header>
-		<div class="archive-empty gallery-empty">
+		{galleryItems.length ? <GalleryGrid items={galleryItems} /> : <div class="archive-empty gallery-empty">
 			<p><LocalizedContent id="gallery-empty" values={collectionContent.gallery.empty} /></p>
-		</div>
+		</div>}
 	</div>
 </BaseLayout>
 

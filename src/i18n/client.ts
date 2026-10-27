@@ -50,6 +50,10 @@ function updateLocalizedDom(locale: SupportedLocale) {
 		const resolved = resolveContentLocale(locale, available, original);
 		if (group.hasAttribute('data-ui-localized') && resolved !== locale) uiDidFallback = true;
 		group.dataset.contentLocale = resolved;
+		if (group instanceof HTMLImageElement && group.dataset.contentAlt) {
+			const values = JSON.parse(group.dataset.contentAlt) as Partial<Record<SupportedLocale, string>>;
+			group.alt = values[resolved] ?? '';
+		}
 		group.querySelectorAll<HTMLElement>('[data-content-copy]').forEach((node) => {
 			const active = node.dataset.contentCopy === resolved;
 			node.toggleAttribute('hidden', !active);
