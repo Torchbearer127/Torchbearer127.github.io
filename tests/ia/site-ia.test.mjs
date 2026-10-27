@@ -124,6 +124,24 @@ test('sovereign-driver is one discoverable neutral entity route', () => {
 	}
 });
 
+test('published CCSC series stays complete and shares homepage space with standalone writing', () => {
+	const seriesHref = '/writing/research-notes/series/ccsc-2026';
+	for (const route of ['/', '/writing', '/writing/research-notes']) {
+		const html = extractRegion(readPage(route), 'main');
+		assert.equal((html.match(/href="\/writing\/research-notes\/series\/ccsc-2026"/g) ?? []).length, 1);
+		assert.match(plainText(html), /共 3 篇/);
+		assert.doesNotMatch(html, /content-system-fixture/);
+	}
+	const series = readPage(seriesHref);
+	for (const part of ['01', '02', '03']) {
+		const href = `/writing/research-notes/ccsc-2026-part-${part}`;
+		assert.ok(series.includes(`href="${href}"`));
+		const article = readPage(href);
+		assert.match(article, /class="series-navigation"/);
+		assert.doesNotMatch(article, /草稿/);
+	}
+});
+
 test('the Essay route uses shared multilingual reader architecture', () => {
 	const html = readPage('/writing/essays/sovereign-driver');
 	assert.match(html, /data-essay-reader/);

@@ -3,8 +3,8 @@ title: "CCSC 2026 研究札记 · 当信息变成行动"
 description: "从智能体软件供应链到轨迹诊断、Harness 演化和运行时安全边界。"
 locale: zh-CN
 date: 2026-10-26
-dateLabel: "2026/10/26 整理 · 草稿"
-draft: true
+dateLabel: "2026/10/26 整理"
+draft: false
 tags: [CCSC2026, 软件安全, 智能体]
 noteKind: reading
 series:

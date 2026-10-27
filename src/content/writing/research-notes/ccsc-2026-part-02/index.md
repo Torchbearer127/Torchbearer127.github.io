@@ -3,8 +3,8 @@ title: "CCSC 2026 研究札记 · 从输入变异到执行证据"
 description: "从 RTL Fuzzing 到漏洞挖掘智能体：Reachability、Triggerability 与执行证据。"
 locale: zh-CN
 date: 2026-10-26
-dateLabel: "2026/10/26 整理 · 草稿"
-draft: true
+dateLabel: "2026/10/26 整理"
+draft: false
 tags: [CCSC2026, 软件安全, 智能体]
 noteKind: reading
 series:

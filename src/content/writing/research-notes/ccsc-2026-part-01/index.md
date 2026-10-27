@@ -3,8 +3,8 @@ title: "CCSC 2026 研究札记 · 看懂代码，也要知道什么叫错"
 description: "程序分析、Specification、FM-Agent 与软件供应链风险。"
 locale: zh-CN
 date: 2026-10-26
-dateLabel: "2026/10/26 整理 · 草稿"
-draft: true
+dateLabel: "2026/10/26 整理"
+draft: false
 tags: [CCSC2026, 软件安全, 智能体]
 noteKind: reading
 series:
